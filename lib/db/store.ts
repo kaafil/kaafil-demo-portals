@@ -64,6 +64,9 @@ type Db = InstanceType<typeof Database>;
  */
 const DB_PATH = join(process.cwd(), 'crm.sqlite');
 
+/** Where the store lives, for callers that need to swap the file under it. */
+export const STORE_PATH = DB_PATH;
+
 const SCHEMA = `
 CREATE TABLE agency (
   agency_code        TEXT PRIMARY KEY,
@@ -669,15 +672,24 @@ function seed(db: Db, fixture: CrmFixture): void {
  * `fixture` defaults to the hand-written core seed; `pnpm seed:bulk` passes
  * the much larger generated one of the same shape.
  */
-export function seedStore(fixture: CrmFixture = CORE_FIXTURE): StoreCounts {
-  removeIfPresent(DB_PATH);
+export function seedStore(
+  fixture: CrmFixture = CORE_FIXTURE,
+  /*
+   * Where to write. Defaults to the real store, which is what `pnpm seed`
+   * wants; the live-departure job passes a temporary path instead and renames
+   * it over the top, so a running server never observes a half-written
+   * database. See `lib/live/swap.ts`.
+   */
+  targetPath: string = DB_PATH,
+): StoreCounts {
+  removeIfPresent(targetPath);
   // SQLite's own sidecars. They only exist if a previous process died in WAL
   // mode, and an orphaned `-wal` next to a brand-new main file would be read
   // back as committed data that never was.
-  removeIfPresent(`${DB_PATH}-wal`);
-  removeIfPresent(`${DB_PATH}-shm`);
+  removeIfPresent(`${targetPath}-wal`);
+  removeIfPresent(`${targetPath}-shm`);
 
-  const db = new Database(DB_PATH);
+  const db = new Database(targetPath);
   try {
     db.pragma('journal_mode = DELETE');
     db.pragma('foreign_keys = ON');

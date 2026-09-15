@@ -45,7 +45,7 @@ the separation *is* the access control.
 ```sh
 pnpm install
 cp .env.example .env     # paste a key into KAAFIL_API_KEY
-pnpm seed                # builds crm.sqlite — 56 departures, 728 travellers
+pnpm seed                # builds crm.sqlite — 56 departures plus today's live one
 pnpm seed:kaafil         # pushes them into your Kaafil tenant. Safe to re-run.
 pnpm dev                 # http://localhost:3000
 ```
@@ -81,6 +81,10 @@ holds nothing real.
 | `pnpm seed:kaafil` | push into your Kaafil tenant. Idempotent, rate-limited |
 | `pnpm seed:kaafil -- --enrich-only` | skip the 7-step push, redo just the depth pass |
 | `pnpm seed:kaafil -- --shallow` | push trips only; no itineraries, rooming or checklists |
+| `pnpm live:refresh` | make today's live departure real in both stores |
+| `pnpm live:refresh -- --dry` | say which departure is live today, write nothing |
+| `pnpm live:refresh -- --local` | rebuild `crm.sqlite` only, leave the tenant alone |
+| `pnpm live:refresh -- --today 2026-10-05` | pretend it is that date |
 | `pnpm build:sw` | bundle the service worker (runs inside `pnpm build`) |
 | `pnpm typecheck` / `pnpm lint` | tsc / Biome |
 | `pnpm format` | Biome, writing fixes |
@@ -89,6 +93,54 @@ holds nothing real.
 `seed:kaafil` is deliberately **not** part of `pnpm dev`: 56 departures means
 56 `journey.waitUntilReady` waits and a rate limit you will hit. Run it because
 fixtures changed, not because you restarted.
+
+---
+
+## There is always one departure out on the ground
+
+The book of business is dated to a week in September 2026 and stays there — an
+operator's history does not move. But a demo whose every departure is in the
+past has an empty Now tab, which is the one screen it most needs to be full.
+
+So `fixtures/live.ts` adds exactly one departure that is under way **today**.
+Which one is a pure function of the date: windows tile the calendar from
+`LIVE_EPOCH`, each as long as its own template's itinerary, so today always
+falls inside exactly one. When it ends, the next one begins under a new id, and
+the finished one stays finished.
+
+**Nothing is ever rewound, and that is the whole design.** The obvious
+alternative — shift every date forward so the old story keeps reading correctly
+— walks into two walls: Kaafil resolves writes by last-writer-wins on
+`sourceUpdatedAt`, so a shifted row silently answers `ignored_stale` unless its
+stamp moves too; and close-out is a `423` with no override at any tier, so a
+completed trip cannot be pulled back into the present at all. Creating a new
+departure meets neither.
+
+A `croner` job inside the Next server (`instrumentation.ts` →
+`lib/live/scheduler.ts`) runs this at 03:10 IST daily, and once shortly after
+boot — a redeployed container is serving whatever was live when its image was
+built, which is the likeliest reason for it to be stale.
+
+It runs **in-process** rather than as an external cron for one specific reason:
+`lib/db/index.ts` memoises the SQLite handle on `globalThis`, and a rename
+unlinks the old inode without closing anybody's descriptor. An outside job could
+rewrite `crm.sqlite` perfectly and this server would go on serving last week's
+departures until somebody redeployed, with no error anywhere. Only a job sharing
+the global can drop the handle.
+
+`/api/health` reports the result, and measures drift from the DATABASE rather
+than from the job's own report — a job that runs, logs success and writes
+nothing looks healthy by its own account, and "subtly wrong for three weeks" is
+the failure nobody notices.
+
+| | |
+|---|---|
+| `LIVE_SCHEDULER=0` | do not start the scheduler at all |
+| `LIVE_SKIP_TENANT=1` | rebuild `crm.sqlite`, never touch Kaafil |
+
+Run this app on **one** instance. Two would mean two schedulers pushing the same
+departure — and they would already be serving two independently seeded copies of
+`crm.sqlite`, since it lives inside the container.
 
 ---
 
@@ -105,9 +157,10 @@ components/
   crm/ ui/      the host's own tables and primitives
   layouts/      the two shells
 config/         contract.ts (HTTP types) · brand.ts (names) · env.ts (the key)
-fixtures/       the CRM's book of business — types, hand seed, generator
-lib/            ingest.ts + enrich.ts (CRM → Kaafil) · db/ · session · format
-scripts/        seed.ts · ingest.ts · build-sw.ts · audit-tokens.ts
+fixtures/       the CRM's book of business — types, hand seed, generator,
+                calendar.ts + live.ts (the departure that is always under way)
+lib/            ingest.ts + enrich.ts (CRM → Kaafil) · db/ · live/ · session · format
+scripts/        seed.ts · ingest.ts · refresh-live.ts · build-sw.ts · audit-tokens.ts
 styles/         tokens.css · kaafil-bridge.css    ← what a branch edits
 sw/             the field app's service worker
 ```

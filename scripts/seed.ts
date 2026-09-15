@@ -23,7 +23,9 @@
 import { existsSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { BULK_FIXTURE_PATH, buildBulkFixture, readGeneratedBulkFixture } from '@/fixtures/bulk';
+import { todayInDeskZone } from '@/fixtures/calendar';
 import { CORE_FIXTURE } from '@/fixtures/core';
+import { buildLiveDeparture, withLiveDeparture } from '@/fixtures/live';
 import type { CrmFixture } from '@/fixtures/types';
 import { seedStore } from '@/lib/db/store';
 
@@ -59,7 +61,24 @@ function chooseFixture(): { fixture: CrmFixture; source: string } {
   return { fixture: existing, source: 'fixtures/bulk.generated.json' };
 }
 
-const { fixture, source } = chooseFixture();
+const { fixture: frozen, source } = chooseFixture();
+
+/*
+ * The frozen fixture plus one departure that is under way TODAY.
+ *
+ * Everything in `fixtures/core.ts` and `fixtures/bulk.generated.json` is dated
+ * to a week in September 2026 and stays there, which is right — an operator's
+ * history does not move. But it means that a month later nothing is in
+ * progress, and the field app's Now tab, which is the screen this demo most
+ * needs to be full, is empty.
+ *
+ * `fixtures/live.ts` adds exactly one. It is a pure function of today's date,
+ * so seeding twice in a day is identical and seeding on two machines agrees.
+ * See that file for why a new departure beats shifting the old ones.
+ */
+const today = todayInDeskZone();
+const fixture = withLiveDeparture(frozen, today);
+const live = buildLiveDeparture(frozen, today);
 const counts = seedStore(fixture);
 
 const onTour = fixture.tours.filter((tour) => tour.status === 'ON_TOUR').length;
@@ -78,6 +97,8 @@ console.log(
     '',
     `  from ${source}`,
     `  ${onTour} departure(s) are out on the ground right now; ${calledOff} were called off.`,
+    `  Live today: ${live.tour.tourId} — ${live.tour.title}`,
+    `             ${live.window.startDate} to ${live.window.endDate}, cut from ${live.window.templateId}`,
     '',
     '  This touched nothing outside this repo. To push these departures into',
     '  your Kaafil tenant, that is `pnpm seed:kaafil`, and it is a separate',
