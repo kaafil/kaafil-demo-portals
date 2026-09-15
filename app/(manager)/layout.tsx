@@ -9,7 +9,7 @@ import { BRAND } from '@/config/brand';
  *
  * ── WHY THE MANIFEST IS HERE AND NOWHERE ELSE ──────────────────────────────
  *
- * `public/manifest.webmanifest` is scoped to `/m`, and it is linked from this
+ * The manifest is scoped to `/m`, and it is linked from this
  * layout only. Putting it in the root layout would make the whole CRM
  * installable, which is wrong twice: a desk executive has no use for an
  * installed app, and a root-scoped install would capture the share links too —
@@ -24,6 +24,14 @@ import { BRAND } from '@/config/brand';
  *
  * The manifest, though, deliberately covers the sign-in screen as well: a tour
  * leader installs the app and then signs in, not the other way round.
+ *
+ * ── THE MANIFEST IS GENERATED, NOT A FILE ──────────────────────────────────
+ *
+ * `app/manifest.ts` builds it from `config/brand.ts` and `styles/tokens.css`,
+ * and Next serves it at the path below. There is deliberately no
+ * `public/manifest.webmanifest` to edit: when there was, it named one operator
+ * and every client branch inherited that name and colour without ever having a
+ * reason to look at the file. A branch never touches this.
  */
 
 export const metadata: Metadata = {

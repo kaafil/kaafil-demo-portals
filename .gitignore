@@ -29,3 +29,6 @@ AGENTS.md
 
 # Screenshots and traces from local browser checks.
 .playwright-mcp/
+live-state.json
+live-state.json.next
+crm.sqlite.next

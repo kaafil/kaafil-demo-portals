@@ -48,7 +48,7 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
   const rows = paged.rows;
 
   const selectClass =
-    'rounded-control border border-border bg-surface px-2 py-1 text-base text-ink';
+    'rounded-control border border-border-control bg-surface px-2 py-1 text-base text-ink';
 
   return (
     <section className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
@@ -114,7 +114,10 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
             return (
               <tr key={tour.tourId} className="hover:bg-hover-wash">
                 <td className={TD}>
-                  <Link href={`/admin/trips/${tour.tourId}`} className="font-semibold text-accent">
+                  <Link
+                    href={`/admin/trips/${tour.tourId}`}
+                    className="font-semibold text-accent-text"
+                  >
                     {tour.title}
                   </Link>
                   <div className="tabular mt-0.5 text-xs text-ink-faint">

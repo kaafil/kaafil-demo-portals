@@ -68,12 +68,14 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-border-faint: var(--border-faint);
+  --color-border-control: var(--border-control);
   --color-hover-wash: var(--hover-wash);
 
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
 
   --color-success: var(--success);
   --color-success-bg: var(--success-bg);
@@ -123,6 +125,7 @@
   --text-lg: var(--text-lg);
   --text-xl: var(--text-xl);
   --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
 
   --spacing-1: var(--space-1);
   --spacing-2: var(--space-2);
@@ -130,6 +133,8 @@
   --spacing-4: var(--space-4);
   --spacing-5: var(--space-5);
   --spacing-6: var(--space-6);
+  --spacing-7: var(--space-7);
+  --spacing-8: var(--space-8);
 
   --ease-standard: var(--ease-standard);
   --ease-decelerate: var(--ease-decelerate);

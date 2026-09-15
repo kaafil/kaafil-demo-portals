@@ -33,6 +33,8 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { build } from 'esbuild';
+import { BRAND } from '@/config/brand';
+import { buildManifest } from '@/config/manifest';
 
 /** Static assets under `public/`, as the URLs they are served at. */
 function walkPublic(dir: string, out: string[] = []): string[] {
@@ -63,11 +65,35 @@ const precache = [
   ...(existsSync('public/brand') ? walkPublic('public/brand') : []),
 ];
 
-// Name the cache after its contents, so a new build is a new cache and the old
-// one is dropped on activate. Hashing the list beats a hand-bumped version
-// string: nobody forgets to change it.
-const cacheName = `sharma-field-${createHash('sha256')
+/**
+ * Name the cache after its contents, so a new build is a new cache and the old
+ * one is dropped on activate. Hashing beats a hand-bumped version string:
+ * nobody forgets to change it.
+ *
+ * TWO THINGS GO INTO THE HASH, AND THE SECOND ONE IS THE BUG FIX.
+ *
+ * Hashing the precache LIST alone is brand-blind. It is very nearly the same
+ * handful of strings on every client branch — `/m`, `/m/login`, the manifest
+ * URL, and a brand folder whose FILE NAMES a branch mostly keeps. So a
+ * re-skin produced a byte-identical cache name, `activate` found nothing to
+ * delete, and a device that had already installed the app kept serving the
+ * previous operator's manifest and mark out of Cache Storage indefinitely.
+ *
+ * That is worse than the static-manifest bug it sits next to: generating the
+ * manifest correctly and then never invalidating it means the fix only reaches
+ * people who had not installed yet. So the manifest BODY goes in too — it
+ * carries the brand's name and colours, which is exactly what changes on a
+ * re-skin and exactly what a stale cache would pin.
+ *
+ * The prefix follows the brand for the same reason. Every branch used to ship a
+ * bucket called `sharma-field-…`, visible in the Application tab of DevTools,
+ * on a demo being shown to the prospect whose name is not Sharma.
+ */
+const cacheSlug = BRAND.shortName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const cacheName = `${cacheSlug}-field-${createHash('sha256')
   .update(precache.join('\n'))
+  .update('\u0000')
+  .update(JSON.stringify(buildManifest()))
   .digest('hex')
   .slice(0, 8)}`;
 

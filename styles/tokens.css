@@ -85,6 +85,26 @@
   --border-faint: #f0f0f0;
   --hover-wash: #fafafa;
 
+  /* The boundary of a control the user is meant to TYPE IN, as opposed to the
+     outline of a card. Separate from `--border` because the two have different
+     floors and only one of them is enforceable.
+
+     WCAG 1.4.11 wants 3:1 for the boundary of an interactive control. A card
+     outline is decoration and has no such floor, and a hairline soft enough to
+     look right around a card — `main`'s `#cdd3d9` is 1.83:1 on white, and a
+     warm cream hairline is fainter still — is well under it. One token cannot
+     be both, so a branch that tried to fix its inputs by darkening `--border`
+     would coarsen every card and table rule in the product to do it.
+
+     `main` points this at `--border`, which is the honest default: `main` is
+     not a design and its inputs fail the check exactly as they did before this
+     token existed. A branch that cares gives it a real value. */
+  /* Travyan's `--border` is `#e6e6e6` — 1.28:1 on white, which is a hairline
+     and not a control boundary. This clears WCAG 1.4.11's 3:1 on both grounds
+     it appears against: 3.23:1 on `--surface`, 3.10:1 on the `--surface-alt`
+     filter bar. Same neutral family, four steps down. */
+  --border-control: #8f8f8f;
+
   /* ── Accent ─────────────────────────────────────────────────────────────
      ONE accent, and the restraint rule that comes with it: it belongs to the
      primary action and to live/active state, and nowhere else. An accent
@@ -97,6 +117,45 @@
   --accent-hover: #f4692f;
   --accent-soft: #ffe9d6;
   --accent-ink: #ffffff;
+
+  /* The accent AS TEXT, on `--surface` or on `--accent-soft`. Not a second
+     brand colour — the same colour's legible sibling, and usually a darker
+     step of the same hue.
+
+     ── WHY THIS IS NOT JUST `--accent` ───────────────────────────────────────
+
+     `--accent` does two jobs that pull in opposite directions. As a FILL it
+     wants to be the brand: saturated, warm, visible across a room. As TEXT it
+     has to clear 4.5:1 against white at 13px, and again against `--accent-soft`
+     in a status chip. Brand colours rarely do both, and warm ones essentially
+     never do:
+
+       Kaafil's own amber  #ea9940   2.30:1 on white,  1.60:1 on its tint
+       Travyan's orange    #fe8652   2.86:1 on white
+       `main`'s slate      #40566e   7.31:1 on white
+
+     `main` passes by accident — a muted slate is dark enough to read. Every
+     branch with an actual brand colour failed, silently, in the places it is
+     least excusable: the departure title link on the busiest table, and the
+     CONFIRMED chip that sits on most of its rows. The seam as originally built
+     therefore quietly forbade warm accents, which is not a constraint anybody
+     chose and not one a branch author could have discovered without a contrast
+     checker.
+
+     So the fill keeps `--accent` and the text gets this. A branch sets the two
+     independently and can carry its real brand colour on every button while
+     still being readable in a table cell.
+
+     `main` points it at `--accent` so nothing about `main` renders differently
+     than it did before. */
+  /* Travyan's orange as TEXT. `--accent` itself is `#fe8652`, which measures
+     2.40:1 on white and 2.04:1 on its own tint — so before this token existed,
+     every departure title link and every CONFIRMED chip on this branch was
+     failing, silently and invisibly, on the busiest screen in the product.
+
+     Same hue, four steps down: 5.58:1 on `--surface`, 5.12:1 on `--canvas`,
+     4.75:1 on `--accent-soft`. The buttons keep the real brand orange. */
+  --accent-text: #ad4a0d;
 
   /* ── Status ─────────────────────────────────────────────────────────────
      Three parts each — base, soft tint, border — not one colour per status.
@@ -156,6 +215,10 @@
   --text-lg: 1rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
+  /* One step past the desk's largest heading, for `/` alone. Every other size
+     here is sized for a dense table; a first impression built by stacking two
+     table headings is a first impression no branch can retune. */
+  --text-3xl: 2rem;
 
   --leading-tight: 1.25;
   --leading-normal: 1.5;
@@ -169,6 +232,11 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
+  /* The top of the scale is a table's rhythm, not a page's. These two exist so
+     the landing screen can breathe without a component reaching for an
+     arbitrary `py-12`, and so a branch can make it breathe differently. */
+  --space-7: 3rem;
+  --space-8: 4rem;
 
   /* ── Chrome ─────────────────────────────────────────────────────────────
      The portals' own furniture. A branch whose prospect runs a 280px sidebar

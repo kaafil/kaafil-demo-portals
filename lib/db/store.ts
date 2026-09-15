@@ -64,6 +64,9 @@ type Db = InstanceType<typeof Database>;
  */
 const DB_PATH = join(process.cwd(), 'crm.sqlite');
 
+/** Where the store lives, for callers that need to swap the file under it. */
+export const STORE_PATH = DB_PATH;
+
 const SCHEMA = `
 CREATE TABLE agency (
   agency_code        TEXT PRIMARY KEY,
@@ -669,15 +672,24 @@ function seed(db: Db, fixture: CrmFixture): void {
  * `fixture` defaults to the hand-written core seed; `pnpm seed:bulk` passes
  * the much larger generated one of the same shape.
  */
-export function seedStore(fixture: CrmFixture = CORE_FIXTURE): StoreCounts {
-  removeIfPresent(DB_PATH);
+export function seedStore(
+  fixture: CrmFixture = CORE_FIXTURE,
+  /*
+   * Where to write. Defaults to the real store, which is what `pnpm seed`
+   * wants; the live-departure job passes a temporary path instead and renames
+   * it over the top, so a running server never observes a half-written
+   * database. See `lib/live/swap.ts`.
+   */
+  targetPath: string = DB_PATH,
+): StoreCounts {
+  removeIfPresent(targetPath);
   // SQLite's own sidecars. They only exist if a previous process died in WAL
   // mode, and an orphaned `-wal` next to a brand-new main file would be read
   // back as committed data that never was.
-  removeIfPresent(`${DB_PATH}-wal`);
-  removeIfPresent(`${DB_PATH}-shm`);
+  removeIfPresent(`${targetPath}-wal`);
+  removeIfPresent(`${targetPath}-shm`);
 
-  const db = new Database(DB_PATH);
+  const db = new Database(targetPath);
   try {
     db.pragma('journal_mode = DELETE');
     db.pragma('foreign_keys = ON');
@@ -715,7 +727,24 @@ export function openStore(): CrmStore {
   db.pragma('foreign_keys = ON');
 
   const selectAgency = db.prepare('SELECT * FROM agency LIMIT 1');
-  const selectTours = db.prepare('SELECT * FROM tours ORDER BY start_date DESC, tour_id');
+  /*
+   * ON_TOUR FIRST, then everything else newest-first.
+   *
+   * Plain `start_date DESC` puts next January's departures above the group
+   * that is standing on a mountain today, which is backwards for the one
+   * screen a desk executive keeps open. `components/ui/index.tsx` already
+   * states the rule this follows — ON_TOUR "is the only status the desk
+   * actively watches, because it means there are people out there right now"
+   * — and gives it the only hue nothing else uses; the list ordering was the
+   * half that never honoured it.
+   *
+   * Within each group the order is unchanged, so nothing else about the screen
+   * moves: an upcoming departure is still found where it always was, just
+   * below the ones that are already under way.
+   */
+  const selectTours = db.prepare(
+    "SELECT * FROM tours ORDER BY CASE status WHEN 'ON_TOUR' THEN 0 ELSE 1 END, start_date DESC, tour_id",
+  );
   const selectTour = db.prepare('SELECT * FROM tours WHERE tour_id = ?');
   const selectDays = db.prepare(
     'SELECT * FROM itinerary_days WHERE tour_id = ? ORDER BY day_number',

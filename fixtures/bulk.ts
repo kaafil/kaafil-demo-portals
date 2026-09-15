@@ -37,6 +37,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { addDays, daysBetween, earliest, latest, pad2, yearOf } from '@/fixtures/calendar';
 import { CORE_FIXTURE } from '@/fixtures/core';
 import type {
   BookingChannel,
@@ -138,44 +139,13 @@ function weighted<T>(rng: Rng, pool: readonly (readonly [T, number])[]): T {
 }
 
 // ---------------------------------------------------------------------------
-// Dates — integer arithmetic on literal strings, no clock anywhere
+// Dates — `./calendar.ts` owns the arithmetic these all rest on. It used to
+// live here, and moved when `fixtures/live.ts` needed the same functions: two
+// copies of "what does adding seven days mean" stay identical right up until
+// somebody fixes a leap-year edge in one of them. Nothing this generator emits
+// changed when they moved, and `pnpm seed:bulk` proves it — the regenerated
+// file is byte-identical.
 // ---------------------------------------------------------------------------
-
-const DAY_MS = 86_400_000;
-
-function pad2(value: number): string {
-  return value < 10 ? `0${value}` : String(value);
-}
-
-function toDayNumber(date: IsoDate): number {
-  return Math.round(Date.parse(`${date}T00:00:00Z`) / DAY_MS);
-}
-
-function fromDayNumber(day: number): IsoDate {
-  const d = new Date(day * DAY_MS);
-  return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
-}
-
-function addDays(date: IsoDate, days: number): IsoDate {
-  return fromDayNumber(toDayNumber(date) + days);
-}
-
-function daysBetween(from: IsoDate, to: IsoDate): number {
-  return toDayNumber(to) - toDayNumber(from);
-}
-
-/** ISO dates sort lexicographically, which is the whole reason for the format. */
-function earliest(a: IsoDate, b: IsoDate): IsoDate {
-  return a <= b ? a : b;
-}
-
-function latest(a: IsoDate, b: IsoDate): IsoDate {
-  return a >= b ? a : b;
-}
-
-function yearOf(date: IsoDate): number {
-  return Number(date.slice(0, 4));
-}
 
 // ---------------------------------------------------------------------------
 // Money
