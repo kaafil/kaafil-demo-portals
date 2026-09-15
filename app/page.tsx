@@ -193,17 +193,22 @@ function Surface({
       <h2 className="mt-1 text-lg font-semibold text-ink">{title}</h2>
       <p className="mt-2 grow text-base text-ink-soft">{children}</p>
 
+      {/* The footnote sits ABOVE the button so the button is the last element in
+          every card, which is what makes the three of them line up: the cards
+          are the same height, the footnotes are not, and anything after the
+          button pushes it off the shared baseline by however many lines that
+          card's caption happens to run to. */}
+      {footnote === undefined ? null : <p className="mt-3 text-xs text-ink-faint">{footnote}</p>}
+
       {href === undefined || action === undefined ? null : (
         <Link
           href={href}
-          className="mt-4 flex items-center justify-center rounded-control bg-accent px-3 text-base font-semibold text-accent-ink hover:bg-accent-hover"
+          className="mt-3 flex items-center justify-center rounded-control bg-accent px-3 text-base font-semibold text-accent-ink hover:bg-accent-hover"
           style={{ minHeight: 'var(--target-touch)' }}
         >
           {action}
         </Link>
       )}
-
-      {footnote === undefined ? null : <p className="mt-2 text-xs text-ink-faint">{footnote}</p>}
     </section>
   );
 }
