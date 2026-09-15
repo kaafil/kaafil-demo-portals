@@ -211,7 +211,11 @@ const LOCALE: Record<string, string> = {
  * `new Date()` here is a constructor over fixture data, not a clock read —
  * nothing in this file derives a `sourceUpdatedAt` from the current time.
  */
-function zonedInstant(date: IsoDate, timeZone: string, clockTime: '00:00:00' | '23:59:59'): string {
+export function zonedInstant(
+  date: IsoDate,
+  timeZone: string,
+  clockTime: '00:00:00' | '23:59:59',
+): string {
   const probe = new Date(`${date}T12:00:00Z`);
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -276,7 +280,7 @@ function orderedTours(tours: readonly CrmTour[]): CrmTour[] {
 // Failure collection
 // ---------------------------------------------------------------------------
 
-function toFailure(step: string, subject: string, error: unknown): IngestFailure {
+export function toFailure(step: string, subject: string, error: unknown): IngestFailure {
   // `isKaafilError` is the SDK's own shape check, and it survives the case
   // where two copies of kaafil-js end up in one dependency tree — which
   // `error instanceof KaafilError` would not.

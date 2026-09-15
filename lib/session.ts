@@ -58,6 +58,31 @@ export async function readStaff(portal: Portal): Promise<CrmStaff | null> {
   return record.staff;
 }
 
+/**
+ * Which portal a person belongs to, from their job.
+ *
+ * This is the whole basis of the single sign-in screen: the demo asks who you
+ * are, and where you land follows from what you do. A tour leader has no use
+ * for the desk and a desk executive has no use for the field app, so making
+ * the visitor choose a portal as well as a person would be asking them to
+ * answer a question the roster already answers.
+ */
+export function portalForStaff(staff: CrmStaff): Portal {
+  return staff.role === 'TOUR_LEADER' ? 'manager' : 'desk';
+}
+
+/** Everyone who can sign in, leaders first — they are the more interesting demo. */
+export function rosterAll(): CrmStaff[] {
+  return getStore()
+    .listStaff()
+    .map((row) => row.staff)
+    .filter((staff) => staff.active)
+    .sort((a, b) => {
+      if (a.role !== b.role) return a.role === 'TOUR_LEADER' ? -1 : 1;
+      return a.fullName.localeCompare(b.fullName);
+    });
+}
+
 export function rosterFor(portal: Portal): CrmStaff[] {
   const role = PORTAL_ROLE[portal];
   return getStore()
