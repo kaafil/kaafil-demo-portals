@@ -1,49 +1,36 @@
 import type { Metadata } from 'next';
-import { PageHead, Panel } from '@/components/ui';
+import { redirect } from 'next/navigation';
+import { AgencyWorkspace } from '@/components/kaafil/agency-workspace';
+import { PageHead } from '@/components/ui';
+import { readStaff } from '@/lib/session';
 
 export const metadata: Metadata = { title: 'On the ground' };
 
 /**
- * PHASE 3 — this is where `KaafilAgencyWorkspace` mounts.
+ * Kaafil's agency workspace, mounted as one more section of the CRM.
  *
- * It is a placeholder today and deliberately a loud one: an empty route that
- * silently renders nothing is indistinguishable from a broken one.
+ * Note what this page does NOT do: it does not fetch a token. It reads who is
+ * signed in and hands that ref to a client component, which asks
+ * `POST /api/admin-session` for a credential of its own. Minting here would
+ * serialise a live access token into the RSC payload — see
+ * `components/kaafil/credential.ts`.
  *
- * What lands here:
- *
- *   'use client'
- *   import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
- *   import { KaafilAgencyWorkspace } from 'kaafil-react-uikit/admin';
- *
- *   <KaafilUIKitProvider accessToken={...} refreshToken={...} agencyRef={...} density="compact">
- *     <KaafilAgencyWorkspace onSelectTrip={...} onOpenTraveller={...} />
- *   </KaafilUIKitProvider>
- *
- * The tokens come from `POST /api/admin-session`, which calls
- * `kaafil.auth.mintAgencyAdminToken({ agencyAdminRef })` on the server, where
- * the API key lives. The browser never sees the key.
+ * `readStaff` has already run in the portal layout, so the redirect below is
+ * unreachable in practice. It stays because this file reads the staff id and
+ * passing `undefined` into a session mint should be impossible by
+ * construction, not by trusting a parent.
  */
-export default function OperationsPage() {
+export default async function OperationsPage() {
+  const staff = await readStaff('desk');
+  if (staff === null) redirect('/login');
+
   return (
     <>
       <PageHead
         title="On the ground"
         subtitle="Rooming, seating, pickups, the cash float and the day-by-day as it really ran."
       />
-      <Panel title="Not wired up yet">
-        <div className="p-4 text-base text-ink-soft">
-          <p className="mt-0">
-            This section is rendered by the Kaafil UI Kit —{' '}
-            <code className="tabular">KaafilAgencyWorkspace</code> from{' '}
-            <code className="tabular">kaafil-react-uikit/admin</code>. It is not mounted yet.
-          </p>
-          <p className="mb-0">
-            Everything above it in the nav is Sharma Travels&rsquo; own software reading Sharma
-            Travels&rsquo; own database. This one section is Kaafil, in the same chrome and under
-            the same brand — which is the entire point of the exercise.
-          </p>
-        </div>
-      </Panel>
+      <AgencyWorkspace agencyAdminRef={staff.staffId} />
     </>
   );
 }

@@ -1,28 +1,42 @@
 /**
  * The one stylesheet the app loads, and the only place cascade order is decided.
  *
- * ── READ THE ORDER BEFORE CHANGING IT ──────────────────────────────────────
+ * ── THE LAYER LINE IS LOAD-BEARING. READ THIS BEFORE CHANGING IT. ──────────
  *
- * 1. The `@layer` statement comes FIRST, before any `@import`. CSS fixes layer
- *    order by first appearance, so declaring the order up front is what makes
- *    `kaafil-ui-overrides` beat `kaafil-ui` — by declaration order, not by
- *    specificity. This is the one line that lets `styles/kaafil-bridge.css`
- *    work without a single `!important`.
+ * Six layers, in this exact order, declared before any `@import` because CSS
+ * fixes layer order by first appearance:
  *
- *    (`@layer` statements are allowed above `@import`; only `@charset` outranks
- *    them. Moving this line below the imports silently inverts the override.)
+ *   theme, base, components, kaafil-ui, kaafil-ui-overrides, utilities
  *
- * 2. Tailwind, then the kit's CSS, then our tokens, then the bridge. The
- *    bridge has to come after the kit so its `:root` block is the later
- *    declaration within the override layer.
+ * Why each position:
  *
- * 3. `kaafil-react-uikit/styles` is imported EXACTLY ONCE, here. The kit never
- *    injects its own CSS on JS import, and that is deliberate — it is what
- *    makes this ordering predictable instead of dependent on which component
- *    a bundler happened to reach first.
+ * - `base` is TAILWIND'S PREFLIGHT, and it must come BEFORE `kaafil-ui`.
+ *   This is the bug that cost the most time on this repo. Preflight resets
+ *   every `button` to `padding: 0; background: transparent`. Declare only
+ *   `@layer kaafil-ui, kaafil-ui-overrides;` and Tailwind appends its own
+ *   layers after yours, so preflight wins over the kit and every chip, tab and
+ *   segmented control in the Kaafil surfaces renders as bare text. The CSS is
+ *   loaded, the tokens resolve, the classes are on the elements, and it still
+ *   looks broken — which is exactly why it is worth a paragraph.
+ *
+ * - `kaafil-ui-overrides` after `kaafil-ui`, so `styles/kaafil-bridge.css`
+ *   wins by declaration order rather than by out-specifying anything. No
+ *   `!important`, and no chance of a future kit release out-specifying us.
+ *
+ * - `utilities` LAST, so our own `className` utilities still beat the kit
+ *   where we deliberately reach into a surface.
+ *
+ * Then: Tailwind, the kit's CSS, our tokens, the bridge. The bridge has to come
+ * after the kit so its `:root` block is the later declaration inside the
+ * override layer.
+ *
+ * `kaafil-react-uikit/styles` is imported EXACTLY ONCE, here. The kit never
+ * injects its own CSS on JS import — that is deliberate, and it is what makes
+ * this ordering predictable instead of dependent on which component a bundler
+ * happened to reach first.
  */
 
-@layer kaafil-ui, kaafil-ui-overrides;
+@layer theme, base, components, kaafil-ui, kaafil-ui-overrides, utilities;
 
 @import 'tailwindcss';
 @import 'kaafil-react-uikit/styles';
