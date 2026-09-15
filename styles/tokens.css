@@ -177,6 +177,10 @@
   --text-lg: 1rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
+  /* One step past the desk's largest heading, for `/` alone. Every other size
+     here is sized for a dense table; a first impression built by stacking two
+     table headings is a first impression no branch can retune. */
+  --text-3xl: 2rem;
 
   --leading-tight: 1.25;
   --leading-normal: 1.5;
@@ -190,6 +194,11 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
+  /* The top of the scale is a table's rhythm, not a page's. These two exist so
+     the landing screen can breathe without a component reaching for an
+     arbitrary `py-12`, and so a branch can make it breathe differently. */
+  --space-7: 3rem;
+  --space-8: 4rem;
 
   /* ── Chrome ─────────────────────────────────────────────────────────────
      The portals' own furniture. A branch whose prospect runs a 280px sidebar

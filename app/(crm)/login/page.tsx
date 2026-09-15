@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/app/_actions/auth';
-import { BRAND } from '@/config/brand';
+import { BRAND, titleCase } from '@/config/brand';
 import type { CrmStaff } from '@/fixtures/types';
 import { initials } from '@/lib/format';
 import { portalForStaff, readStaff, rosterAll } from '@/lib/session';
@@ -53,8 +54,21 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center px-4 py-8">
+      {/* `/` is a real page now, so this screen is no longer the root of
+          anything and a visitor who lands here needs an exit that is not the
+          browser's back button. */}
+      <Link href="/" className="mb-3 text-sm text-ink-faint hover:text-ink">
+        ← {BRAND.productName}
+      </Link>
       <h1 className="text-2xl font-semibold text-ink">{BRAND.productName}</h1>
-      <p className="mt-1 mb-5 text-md text-ink-faint">{BRAND.tagline}</p>
+      <p className="mt-1 text-md text-ink-faint">{BRAND.tagline}</p>
+      {/* Said plainly, and BEFORE the roster. The paragraph at the foot of this
+          page explains the same thing properly, but it is written for somebody
+          reading the repo — it cannot be the first explanation a stranger gets,
+          and it is below twenty names they have to scroll past. */}
+      <p className="mt-3 mb-5 text-base text-ink-soft">
+        There is no password here. Pick a person, and you land where that person works.
+      </p>
 
       {error === 'unknown-staff' && (
         <p className="mb-4 rounded-control border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger">
@@ -63,14 +77,22 @@ export default async function LoginPage({
       )}
 
       <form action={signIn} className="grid gap-4 md:grid-cols-2">
+        {/* The vocabulary, not two hardcoded English titles. Travyan's people
+            are trip managers and agents, and this screen called them tour
+            leaders and desk executives on that branch — a live bug, and exactly
+            the kind `config/brand.ts` exists to prevent. The anchor ids are
+            what `/`'s two cards deep-link to, which matters at phone width
+            where these stack. */}
         <Group
-          title="Tour leaders"
+          id="field"
+          title={titleCase(BRAND.vocabulary.leaderPlural)}
           blurb="The field app — a phone, offline-first."
           people={leaders}
         />
         <Group
-          title="Desk executives"
-          blurb="The office portal — departures and collections."
+          id="desk"
+          title={titleCase(BRAND.vocabulary.deskPlural)}
+          blurb={`The office portal — ${BRAND.vocabulary.tourPlural} and collections.`}
           people={deskStaff}
         />
       </form>
@@ -85,16 +107,21 @@ export default async function LoginPage({
 }
 
 function Group({
+  id,
   title,
   blurb,
   people,
 }: {
+  id: string;
   title: string;
   blurb: string;
   people: readonly CrmStaff[];
 }) {
   return (
-    <section className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
+    <section
+      id={id}
+      className="overflow-hidden rounded-card border border-border bg-surface shadow-card"
+    >
       <header className="border-b border-border-faint bg-surface-alt px-3 py-2">
         <h2 className="text-sm font-semibold tracking-wide text-ink-soft uppercase">{title}</h2>
         <p className="mt-0.5 text-xs text-ink-faint">{blurb}</p>
