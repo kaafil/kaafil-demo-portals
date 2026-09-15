@@ -166,8 +166,18 @@
      top bar's background) and not the source (the accent). */
   --sidebar-width: 15rem;
   --topbar-height: 3.25rem;
-  --row-height: 2rem;
   --tabbar-height: 3.5rem;
+
+  /* Table density.
+
+     `--row-height` is a MINIMUM — a row whose content needs two lines still
+     grows, which is why the cell padding below is the knob that actually
+     changes how a table feels. Setting only the row height on a table whose
+     rows are already content-sized does nothing, and a branch that tried it
+     would reasonably conclude the token system was decorative. */
+  --row-height: 2rem;
+  --cell-padding-y: 0.375rem;
+  --cell-padding-x: 0.75rem;
 
   --topbar-bg: var(--accent);
   --topbar-ink: var(--accent-ink);

@@ -62,7 +62,7 @@ export default async function TripDetailPage({
           ← All departures
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h1 className="m-0 text-xl leading-tight font-semibold text-ink">{tour.title}</h1>
+          <h1 className="text-xl font-semibold text-ink">{tour.title}</h1>
           <TourStatusChip status={tour.status} />
           <TourStyleChip style={tour.style} />
           {tour.sellingMode === 'CUSTOMISED' && <Chip tone="neutral" label="Customised" />}

@@ -139,6 +139,29 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* The data table's row rhythm, so `--row-height` is a real knob rather than a
+   number a branch changes to no effect.
+
+   `height` on a table row is a MINIMUM, not a cap: a row whose content needs
+   two lines still grows. That is the behaviour wanted here — the token sets
+   the rhythm of a full table, and a long destination list is allowed to break
+   it rather than be clipped. */
+.data-table tbody tr {
+  height: var(--row-height);
+}
+
+.data-table :is(th, td) {
+  padding: var(--cell-padding-y) var(--cell-padding-x);
+}
+
+/* Headings take the tight ramp; body copy takes the normal one, set on
+   `body` above. Doing this once here is what keeps `--leading-tight` a real
+   token rather than a number duplicated into every heading's class list. */
+:is(h1, h2, h3, h4) {
+  margin: 0;
+  line-height: var(--leading-tight);
+}
+
 /* Tabular figures everywhere a number can line up under another number. A
    money column that doesn't align is a money column nobody can scan. */
 .tabular {
