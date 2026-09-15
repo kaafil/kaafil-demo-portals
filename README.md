@@ -228,6 +228,14 @@ request at all*, which reads like a broken credential rather than a race.
 start`, not `pnpm dev`. Dev precaches the shell alone, because dev chunks are
 generated on demand and renamed constantly.
 
+**The snapshot has to be warmed before it is worth anything.** The service
+worker caches the SHELL; the trip data lives in the offline snapshot, which
+fills on a sync pull. So the honest sequence for a demo is: open `/m` online,
+tap into the departure you are going to show, and only then go offline. Skip
+the warm-up and the app boots perfectly to an empty trip list, which looks far
+worse than a boot failure. This is true of every offline-first app and is worth
+saying out loud rather than discovering on a stage.
+
 **Scope the worker to `/m`, not `/m/`.** Scope is a prefix match: `/m/` controls
 `/m/login` and not `/m`, which is the route the whole offline story is about.
 Ours registered, activated, precached the shell, reported a healthy scope and
