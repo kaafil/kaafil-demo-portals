@@ -27,8 +27,8 @@
   "comment:secrets": "KAAFIL_API_KEY has no NEXT_PUBLIC_ prefix, so Next never inlines it. It is read by app/api/*/route.ts (server-only) and scripts/ingest.ts. lib/kaafil-server.ts carries `import 'server-only'` so a client component that imports it fails the build rather than shipping the key.",
   "dependencies": {
     "better-sqlite3": "^11.8.1",
-    "kaafil-js": "0.5.0",
-    "kaafil-react-uikit": "0.10.3",
+    "kaafil-js": "0.6.2",
+    "kaafil-react-uikit": "0.11.1",
     "lucide-react": "^1.46.0",
     "next": "^16.2.1",
     "react": "^19.2.0",
