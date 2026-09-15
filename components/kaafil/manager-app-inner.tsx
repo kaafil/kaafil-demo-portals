@@ -4,6 +4,7 @@ import type { KaafilStorageAdapter } from 'kaafil-js/client';
 import { createIndexedDbStorageAdapter } from 'kaafil-js/client';
 import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
 import { KaafilManagerApp } from 'kaafil-react-uikit/manager';
+import { localStorageCredentialStore, withCachedCredential } from 'kaafil-react-uikit/offline';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { signOut } from '@/app/_actions/auth';
@@ -74,7 +75,50 @@ export default function ManagerAppInner({ managerRef }: { managerRef: string }) 
   const [storage, setStorage] = useState<KaafilStorageAdapter | null>(null);
   const [storageFailed, setStorageFailed] = useState(false);
 
-  const credentialResolver = useMemo(() => managerCredential(managerRef), [managerRef]);
+  /**
+   * The resolver, wrapped so a reload with no signal still opens the app.
+   *
+   * ── WHY THE OUTBOX NEEDS THIS ──────────────────────────────────────────────
+   *
+   * Without it the offline story has a hole big enough to swallow the feature.
+   * A leader logs three expenses in a valley — the outbox holds them, exactly
+   * as designed. Then the phone dies, or the tab is killed, or they simply
+   * reload. On the way back up the provider calls `/api/session`, which cannot
+   * be reached, and the surface refuses to open. The writes are still on the
+   * device and there is now no screen that can drain them.
+   *
+   * `withCachedCredential` stores the last credential that worked and returns
+   * it when — and only when — the request never completed.
+   *
+   * ── WHAT IT DELIBERATELY DOES NOT DO ───────────────────────────────────────
+   *
+   * It never judges freshness. A cached access token still expires and cannot
+   * be refreshed offline, so a leader who has been out of signal longer than
+   * the token's life will not get in. That is a real limit to design around,
+   * not a bug: "now" in this product is the SERVER's time, and a device that
+   * has been offline for hours has no trustworthy clock to compare against. A
+   * helper that checked expiry here would have to read the device clock — the
+   * one thing the architecture forbids, for exactly the reason it would be
+   * wrong.
+   *
+   * The default `isUnreachable` recognises precisely one thing: the `TypeError`
+   * `fetch` throws when it cannot reach the network. That narrowness is the
+   * point — a predicate that answered `true` too eagerly would turn a 401 into
+   * a silent session extension, which is the bug this helper exists to
+   * prevent. `credential.ts` throws a plain `Error` for any HTTP failure and
+   * lets `fetch`'s own `TypeError` through untouched, so the default is
+   * correct here and is left alone.
+   *
+   * The store is scoped per manager. Two leaders sharing a device must not
+   * share a cached credential, and `scope` is an identifier, never the secret.
+   */
+  const credentialResolver = useMemo(
+    () =>
+      withCachedCredential(managerCredential(managerRef), {
+        store: localStorageCredentialStore(`sharma-field:${managerRef}`),
+      }),
+    [managerRef],
+  );
 
   useEffect(() => {
     let cancelled = false;

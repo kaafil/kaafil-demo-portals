@@ -108,6 +108,7 @@ console.log(
           `  rooms created     ${enriched.rooms}`,
           `  travellers roomed ${enriched.roomingAssigned}`,
           `  checklist items   ${enriched.checklistItems}`,
+          `  floats issued     ${enriched.floatsIssued}`,
           `  enrich failures   ${enriched.failures.length}`,
         ]),
     '',
