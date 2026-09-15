@@ -10,6 +10,12 @@ import { BRAND } from '@/config/brand';
  * kit puts in its own chrome, so an embedded screen says "Travyan" rather than
  * "Kaafil" without anyone editing a Kaafil file.
  *
+ * `appName` is overridable per portal, and the field app needs it. The default
+ * is the desk's name — "Sharma Travels Admin" — and the kit puts it at the top
+ * of the manager's Now tab, where it told a tour leader standing in a valley
+ * that they were looking at an admin console. The two portals are two
+ * products; they need two names.
+ *
  * `headStrategy` is the interesting one. On the two staff surfaces it is
  * `'none'`: those screens live INSIDE a page the CRM already owns, and a
  * component that rewrites `<title>` and the favicon out from under its host is
@@ -17,9 +23,9 @@ import { BRAND } from '@/config/brand';
  * it IS the whole document — so it passes `'own-page'` and lets the kit set the
  * head from the share token's own metadata.
  */
-export function hostBrand() {
+export function hostBrand(appName: string = BRAND.productName) {
   return {
-    appName: BRAND.productName,
+    appName,
     ...(BRAND.logoPath === null ? {} : { logo: BRAND.logoPath, logoMark: BRAND.logoPath }),
     headStrategy: 'none' as const,
   };

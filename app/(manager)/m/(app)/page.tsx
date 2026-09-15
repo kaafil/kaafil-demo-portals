@@ -1,35 +1,20 @@
-import { Panel } from '@/components/ui';
+import { redirect } from 'next/navigation';
+import { ManagerApp } from '@/components/kaafil/manager-app';
+import { readStaff } from '@/lib/session';
 
 /**
- * PHASE 3/4 — this is where `KaafilManagerApp` mounts.
+ * The field app. Kaafil fills this screen.
  *
- *   'use client'
- *   import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
- *   import { KaafilManagerApp } from 'kaafil-react-uikit/manager';
- *   import { createIndexedDbStorageAdapter } from 'kaafil-js/client';
- *
- * Four callbacks are REQUIRED and each must open a real CRM screen — that is
- * the whole point of them: `onCollectFromGroup`, `onVendorSelect`,
- * `onLogExpense`, `onCollectPayment`. Kaafil owns what happens on the ground;
- * the money and the vendor records stay the CRM's, so Kaafil hands control
- * back rather than growing its own copy.
- *
- * Tokens come from `POST /api/session` → `kaafil.auth.mintManagerToken`.
+ * Unlike the desk, where Kaafil is one tab of a page the CRM owns, here the
+ * surface IS the product: a tour leader opens `/m` to run today's trip and
+ * nothing else. That asymmetry is the point of keeping the two portals apart
+ * — the same kit, mounted two completely different ways, because a desk
+ * executive and somebody standing at a bus door are not two densities of one
+ * user.
  */
-export default function ManagerHome() {
-  return (
-    <Panel title="Not wired up yet">
-      <div className="p-3 text-base text-ink-soft">
-        <p className="mt-0">
-          <code className="tabular">KaafilManagerApp</code> from{' '}
-          <code className="tabular">kaafil-react-uikit/manager</code> mounts here.
-        </p>
-        <p className="mb-0">
-          This surface is offline-first: everything a leader does is written locally and synced when
-          the network returns. It is the least fakeable thing in the product and the reason the
-          field half is a separate portal rather than a narrow column of the desk.
-        </p>
-      </div>
-    </Panel>
-  );
+export default async function ManagerHome() {
+  const staff = await readStaff('manager');
+  if (staff === null) redirect('/m/login');
+
+  return <ManagerApp managerRef={staff.staffId} />;
 }
