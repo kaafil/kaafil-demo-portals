@@ -2,6 +2,7 @@
 
 import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
 import { KaafilShareView } from 'kaafil-react-uikit/traveller';
+import { BRAND } from '@/config/brand';
 import { shareBrand } from './brand';
 
 /**
@@ -36,7 +37,15 @@ import { shareBrand } from './brand';
  */
 export default function ShareViewInner({ token }: { token: string }) {
   return (
-    <KaafilUIKitProvider shareToken={token} locale="en-IN" brand={shareBrand()}>
+    <KaafilUIKitProvider
+      shareToken={token}
+      locale="en-IN"
+      brand={shareBrand()}
+      // The operator's scheme, never the traveller's OS. This page is opened
+      // on a stranger's phone; it should look like the operator's brand there,
+      // not like whatever that phone is set to — see `Brand.colorScheme`.
+      theme={BRAND.colorScheme}
+    >
       <KaafilShareView token={token} headStrategy="own-page" />
     </KaafilUIKitProvider>
   );

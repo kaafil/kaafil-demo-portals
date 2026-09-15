@@ -4,6 +4,7 @@ import { TripWorkspace } from 'kaafil-react-uikit/admin';
 import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
+import { BRAND } from '@/config/brand';
 import { buildShareUrl, hostBrand } from './brand';
 import { agencyAdminCredential } from './credential';
 
@@ -54,6 +55,8 @@ export default function TripOperationsInner({
   return (
     <KaafilUIKitProvider
       credentialResolver={credentialResolver}
+      // The host's scheme, never the viewer's OS — see `Brand.colorScheme`.
+      theme={BRAND.colorScheme}
       density="compact"
       locale="en-IN"
       brand={hostBrand()}
