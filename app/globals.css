@@ -79,6 +79,17 @@
 
   --color-ring: var(--ring);
 
+  --color-topbar-bg: var(--topbar-bg);
+  --color-topbar-ink: var(--topbar-ink);
+  --color-topbar-border: var(--topbar-border);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-ink: var(--sidebar-ink);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-nav-active-bg: var(--nav-active-bg);
+  --color-nav-active-ink: var(--nav-active-ink);
+  --color-nav-active-marker: var(--nav-active-marker);
+  --color-nav-hover-bg: var(--nav-hover-bg);
+
   --radius-control: var(--radius-control);
   --radius-card: var(--radius-card);
   --radius-pill: var(--radius-pill);

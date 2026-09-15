@@ -144,12 +144,46 @@
   --space-6: 2rem;
 
   /* ── Chrome ─────────────────────────────────────────────────────────────
-     The desk portal's own furniture. A branch whose prospect runs a 280px
-     sidebar changes one number here, not a layout component. */
+     The portals' own furniture. A branch whose prospect runs a 280px sidebar
+     changes one number here, not a layout component.
+
+     ── WHY THE CHROME HAS ITS OWN COLOURS ──────────────────────────────────
+
+     The first real prospect (Travyan) exposed this. `main` draws a saturated
+     accent masthead with a white-on-accent wordmark; Travyan's console is a
+     WHITE sidebar and a WHITE top bar, with the orange showing up only on the
+     active nav row and the primary button.
+
+     That is not reachable by changing `--accent`. Changing the accent there
+     would repaint the masthead the wrong colour and leave you editing
+     `desk-shell.tsx` — which would break the "a branch is one file" claim on
+     the very first branch.
+
+     So the chrome reads its OWN tokens rather than `--accent` directly. `main`
+     points them at the accent; a branch that wants white chrome points them at
+     the surface and loses nothing. This is the general lesson and it is worth
+     stating: a token that a component consumes should name the ROLE (the
+     top bar's background) and not the source (the accent). */
   --sidebar-width: 15rem;
   --topbar-height: 3.25rem;
   --row-height: 2rem;
   --tabbar-height: 3.5rem;
+
+  --topbar-bg: var(--accent);
+  --topbar-ink: var(--accent-ink);
+  --topbar-border: transparent;
+
+  --sidebar-bg: var(--surface);
+  --sidebar-ink: var(--ink-soft);
+  --sidebar-border: var(--border);
+
+  /* The active nav row. `--nav-active-marker` is the leading edge rule; a
+     branch that wants no marker sets it to `transparent` rather than deleting
+     an element. */
+  --nav-active-bg: var(--accent-soft);
+  --nav-active-ink: var(--ink);
+  --nav-active-marker: var(--accent);
+  --nav-hover-bg: var(--hover-wash);
 
   /* ── Target size ────────────────────────────────────────────────────────
      A real token, not a convention each component has to remember. `--target-

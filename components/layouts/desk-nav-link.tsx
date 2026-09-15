@@ -32,8 +32,8 @@ export function DeskNavLink({
       aria-current={active ? 'page' : undefined}
       className={`flex items-center justify-between gap-2 border-l-2 px-4 py-1.5 text-md no-underline ${
         active
-          ? 'border-l-accent bg-accent-soft font-semibold text-ink'
-          : 'border-l-transparent text-ink-soft hover:bg-hover-wash'
+          ? 'border-l-nav-active-marker bg-nav-active-bg font-semibold text-nav-active-ink'
+          : 'border-l-transparent text-sidebar-ink hover:bg-nav-hover-bg'
       }`}
       style={{ minHeight: 'var(--target-pointer)' }}
     >

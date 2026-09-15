@@ -49,12 +49,12 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
   return (
     <div className="min-h-dvh">
       <header
-        className="sticky top-0 flex items-center justify-between gap-4 bg-accent px-4 text-accent-ink"
+        className="sticky top-0 flex items-center justify-between gap-4 border-b border-topbar-border bg-topbar-bg px-4 text-topbar-ink"
         style={{ height: 'var(--topbar-height)', zIndex: 'var(--z-sticky)' }}
       >
         <Link
           href="/admin/trips"
-          className="font-semibold tracking-wide text-accent-ink no-underline"
+          className="font-semibold tracking-wide text-topbar-ink no-underline"
         >
           {BRAND.productName}
         </Link>
@@ -65,7 +65,7 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
           <form action={signOut.bind(null, 'desk')}>
             <button
               type="submit"
-              className="rounded-control border border-accent-ink/40 px-2 py-1 text-sm text-accent-ink hover:bg-accent-hover"
+              className="rounded-control border border-current/30 px-2 py-1 text-sm text-topbar-ink hover:bg-current/10"
             >
               Sign out
             </button>
@@ -75,7 +75,7 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
 
       <div className="flex items-stretch">
         <nav
-          className="shrink-0 border-r border-border bg-surface py-3"
+          className="shrink-0 border-r border-sidebar-border bg-sidebar-bg py-3"
           style={{
             width: 'var(--sidebar-width)',
             minHeight: 'calc(100dvh - var(--topbar-height))',

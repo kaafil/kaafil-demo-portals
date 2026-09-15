@@ -1,5 +1,3 @@
-import 'server-only';
-
 /**
  * The only module that reads `process.env`.
  *
@@ -13,8 +11,18 @@ import 'server-only';
  * trip and erase a traveller. There is no amount of care elsewhere that
  * recovers from that.
  *
- * `import 'server-only'` above is the enforcement rather than the comment: a
- * client component that imports this module fails the build.
+ * ── WHY THERE IS NO `server-only` HERE ─────────────────────────────────────
+ *
+ * There was, and it broke `pnpm seed:kaafil`: the `server-only` package
+ * resolves to a module that THROWS anywhere outside a Next server bundle, and
+ * the ingest CLI is plain Node under tsx. The guard belongs on the module that
+ * holds a constructed client — `lib/kaafil-server.ts` — not on a pure function
+ * that reads `process.env`, which the CLI legitimately needs too.
+ *
+ * Nothing is lost by moving it. The key exists only in `process.env`, and Next
+ * inlines nothing but `NEXT_PUBLIC_*`, so `process.env.KAAFIL_API_KEY` in a
+ * browser bundle is `undefined` — the value cannot reach a client bundle even
+ * if this module somehow did.
  *
  * The browser never holds the key. It holds a short-lived, single-identity
  * session token that a route handler minted for it.

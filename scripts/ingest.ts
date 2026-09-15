@@ -22,9 +22,9 @@
 import { readGeneratedBulkFixture } from '@/fixtures/bulk';
 import { CORE_FIXTURE } from '@/fixtures/core';
 import { runIngest } from '@/lib/ingest';
-import { getKaafil } from '@/lib/kaafil-server';
+import { createKaafilClient } from '@/lib/kaafil-client';
 
-const { kaafil, env, baseUrl } = getKaafil();
+const { kaafil, env, baseUrl } = createKaafilClient();
 const fixture = readGeneratedBulkFixture() ?? CORE_FIXTURE;
 
 console.log(

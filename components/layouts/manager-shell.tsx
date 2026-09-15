@@ -22,7 +22,7 @@ export function ManagerShell({ staff, children }: { staff: CrmStaff; children: R
   return (
     <div className="flex min-h-dvh flex-col">
       <header
-        className="flex shrink-0 items-center justify-between gap-3 bg-accent px-3 text-accent-ink"
+        className="flex shrink-0 items-center justify-between gap-3 border-b border-topbar-border bg-topbar-bg px-3 text-topbar-ink"
         style={{ height: 'var(--topbar-height)' }}
       >
         <span className="font-semibold">{BRAND.shortName} Field</span>
@@ -31,7 +31,7 @@ export function ManagerShell({ staff, children }: { staff: CrmStaff; children: R
           <form action={signOut.bind(null, 'manager')}>
             <button
               type="submit"
-              className="rounded-control border border-accent-ink/40 px-2 py-1 text-sm text-accent-ink"
+              className="rounded-control border border-current/30 px-2 py-1 text-sm text-topbar-ink"
             >
               Sign out
             </button>
@@ -48,7 +48,7 @@ export function ManagerShell({ staff, children }: { staff: CrmStaff; children: R
         embedded mobile surface ends up looking bolted on.
       */}
       <nav
-        className="flex shrink-0 items-center justify-around border-t border-border bg-surface"
+        className="flex shrink-0 items-center justify-around border-t border-sidebar-border bg-sidebar-bg"
         style={{
           height: 'var(--tabbar-height)',
           paddingBottom: 'env(safe-area-inset-bottom)',
