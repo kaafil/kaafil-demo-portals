@@ -52,6 +52,21 @@ export interface Paginated<T> {
  *
  * Without `resetKey` only the clamp applies, which is the safe default but
  * leaves case 2 feeling wrong. Both call sites in this repo pass it.
+ *
+ * ── WHY THE RESET IS NOT AN EFFECT ─────────────────────────────────────────
+ *
+ * It was, and the two fought. Both effects run in the same commit and both
+ * read the same stale `page`: the reset set it to 1, then the clamp — reading
+ * the pre-reset value of 30 — set it to the last valid page and won, because
+ * it was declared second. Searching from page 30 kept landing on the last page
+ * of the results, which is the exact bug the reset was added to fix.
+ *
+ * Adjusting state during render instead is React's documented answer to
+ * "reset state when a prop changes", and it is the one that is actually
+ * correct here rather than merely ordered differently: `page` is already 1 by
+ * the time the clamp effect runs, so there is nothing stale for it to fight
+ * over. Reordering the two effects would have papered over it until the next
+ * person added a third.
  */
 export function usePaginated<T>(
   all: readonly T[],
@@ -60,15 +75,16 @@ export function usePaginated<T>(
   const { initialSize = 25, resetKey } = options;
   const [page, setPage] = useState(1);
   const [pageSize, setPageSizeRaw] = useState<PageSize>(initialSize);
+  const [seenKey, setSeenKey] = useState(resetKey);
 
   const total = all.length;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
-  // Case 2: the filter moved. Back to the top of the new result set.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: resetting ON the key changing is the point
-  useEffect(() => {
+  // Case 2: the filter moved. During render, not in an effect — see above.
+  if (resetKey !== seenKey) {
+    setSeenKey(resetKey);
     setPage(1);
-  }, [resetKey]);
+  }
 
   // Case 1: the safety net.
   useEffect(() => {
