@@ -42,7 +42,6 @@ const NAV: readonly {
     items: [
       { href: '/admin/trips', label: titleCase(BRAND.vocabulary.tourPlural), icon: 'trips' },
       { href: '/admin/travellers', label: 'Traveller records', icon: 'travellers' },
-      { href: '/admin/operations', label: 'On the ground', icon: 'operations', badge: 'live' },
     ],
   },
   {

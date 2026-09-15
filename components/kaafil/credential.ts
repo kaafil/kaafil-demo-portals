@@ -1,11 +1,11 @@
 'use client';
 
-import { KAAFIL_API } from '@/config/contract';
 import type {
   AgencyAdminSessionResponse,
   CrmErrorBody,
   ManagerSessionResponse,
 } from '@/config/contract';
+import { KAAFIL_API } from '@/config/contract';
 
 /**
  * How the browser gets a Kaafil credential.
