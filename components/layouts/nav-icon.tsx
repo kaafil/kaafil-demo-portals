@@ -23,7 +23,7 @@ import { CircleDot, Compass, type LucideIcon, Map, Users, Wallet } from 'lucide-
 export type NavIconKey = 'trips' | 'travellers' | 'operations' | 'staff' | 'settings';
 
 const ICONS: Record<NavIconKey, LucideIcon> = {
-  trips: Map,
+  trips: MapIcon,
   travellers: Users,
   operations: Compass,
   staff: Users,
