@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { EmptyRow, Table, TD, TH, TourStatusChip, TourStyleChip } from '@/components/ui';
+import { Pagination } from '@/components/ui/pagination';
+import { BRAND } from '@/config/brand';
 import type { TourSummary } from '@/config/contract';
 import type { TourStatus } from '@/fixtures/types';
 import { amount, dateRange, daysUntil } from '@/lib/format';
+import { usePaginated } from '@/lib/use-paginated';
 
 /**
  * The departures table, with the three filters a desk actually uses.
@@ -23,7 +26,7 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
 
   const regions = useMemo(() => [...new Set(tours.map((row) => row.tour.region))].sort(), [tours]);
 
-  const rows = useMemo(() => {
+  const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return tours.filter(({ tour, leadLeader }) => {
       if (status !== 'ALL' && tour.status !== status) return false;
@@ -37,6 +40,12 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
         .some((value) => value.toLowerCase().includes(needle));
     });
   }, [tours, query, status, region]);
+
+  // Filter first, then paginate. The other order would page through the whole
+  // list and then filter one page of it, which is how a search that "finds
+  // nothing" on page 3 happens.
+  const paged = usePaginated(filtered);
+  const rows = paged.rows;
 
   const selectClass =
     'rounded-control border border-border bg-surface px-2 py-1 text-base text-ink';
@@ -79,7 +88,9 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
           ))}
         </select>
         <span className="tabular text-sm text-ink-faint">
-          {rows.length} of {tours.length}
+          {filtered.length === tours.length
+            ? `${tours.length} ${BRAND.vocabulary.tourPlural}`
+            : `${filtered.length} of ${tours.length}`}
         </span>
       </div>
 
@@ -154,6 +165,8 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
           })
         )}
       </Table>
+
+      <Pagination {...paged} noun={BRAND.vocabulary.tourPlural} />
     </section>
   );
 }

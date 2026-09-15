@@ -3,16 +3,14 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { EmptyRow, MEAL_LABEL, Table, TD, TH, TourStatusChip } from '@/components/ui';
+import { Pagination } from '@/components/ui/pagination';
 import type { TravellerRecord } from '@/config/contract';
-
-/** Page size. 728 rows in one DOM is slow to paint and useless to read. */
-const PAGE = 50;
+import { usePaginated } from '@/lib/use-paginated';
 
 export function TravellerTable({ travellers }: { travellers: readonly TravellerRecord[] }) {
   const [query, setQuery] = useState('');
-  const [shown, setShown] = useState(PAGE);
 
-  const rows = useMemo(() => {
+  const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (needle === '') return travellers;
     return travellers.filter(({ traveller, tourTitle, partyName }) =>
@@ -30,7 +28,9 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
     );
   }, [travellers, query]);
 
-  const visible = rows.slice(0, shown);
+  // Filter first, then paginate — see trip-table for why the other order bites.
+  const paged = usePaginated(filtered);
+  const visible = paged.rows;
 
   return (
     <section className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
@@ -38,16 +38,15 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
         <input
           type="search"
           value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setShown(PAGE);
-          }}
+          onChange={(event) => setQuery(event.target.value)}
           placeholder="Name, phone, email, booking ref or city"
           aria-label="Search travellers"
           className="min-w-64 flex-1 rounded-control border border-border bg-surface px-2 py-1 text-base text-ink"
         />
         <span className="tabular text-sm text-ink-faint">
-          {rows.length} of {travellers.length}
+          {filtered.length === travellers.length
+            ? `${travellers.length} people`
+            : `${filtered.length} of ${travellers.length}`}
         </span>
       </div>
 
@@ -125,17 +124,7 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
         )}
       </Table>
 
-      {shown < rows.length && (
-        <div className="border-t border-border-faint bg-surface-alt px-3 py-2 text-center">
-          <button
-            type="button"
-            onClick={() => setShown((current) => current + PAGE)}
-            className="rounded-control border border-border bg-surface px-3 py-1 text-base text-ink hover:bg-hover-wash"
-          >
-            Show {Math.min(PAGE, rows.length - shown)} more
-          </button>
-        </div>
-      )}
+      <Pagination {...paged} noun="travellers" />
     </section>
   );
 }
