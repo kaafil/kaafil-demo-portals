@@ -83,7 +83,7 @@ export default async function TripDetailPage({
   return (
     <>
       <header className="mb-4 border-b border-border-faint pb-3">
-        <Link href="/admin/trips" className="text-sm text-accent">
+        <Link href="/admin/trips" className="text-sm text-accent-text">
           ← All departures
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -197,7 +197,7 @@ export default async function TripDetailPage({
               leader changed — lives in Kaafil, under{' '}
               <Link
                 href={`/admin/trips/${tour.tourId}?tab=onground` as never}
-                className="text-accent"
+                className="text-accent-text"
               >
                 On the ground
               </Link>

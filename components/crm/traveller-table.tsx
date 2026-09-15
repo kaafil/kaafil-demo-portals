@@ -41,7 +41,7 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Name, phone, email, booking ref or city"
           aria-label="Search travellers"
-          className="min-w-64 flex-1 rounded-control border border-border bg-surface px-2 py-1 text-base text-ink"
+          className="min-w-64 flex-1 rounded-control border border-border-control bg-surface px-2 py-1 text-base text-ink"
         />
         <span className="tabular text-sm text-ink-faint">
           {filtered.length === travellers.length
@@ -80,7 +80,7 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
                 )}
               </td>
               <td className={TD}>
-                <Link href={`/admin/trips/${traveller.tourId}`} className="text-accent">
+                <Link href={`/admin/trips/${traveller.tourId}`} className="text-accent-text">
                   {tourTitle}
                 </Link>
                 <div className="mt-0.5">

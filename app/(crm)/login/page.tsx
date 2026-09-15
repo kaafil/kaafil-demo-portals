@@ -115,7 +115,7 @@ function Group({
             >
               <span
                 aria-hidden
-                className="flex shrink-0 items-center justify-center rounded-pill bg-accent-soft text-xs font-semibold text-accent"
+                className="flex shrink-0 items-center justify-center rounded-pill bg-accent-soft text-xs font-semibold text-accent-text"
                 style={{ width: 'var(--target-pointer)', height: 'var(--target-pointer)' }}
               >
                 {initials(staff.fullName)}

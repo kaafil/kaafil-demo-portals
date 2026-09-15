@@ -63,7 +63,7 @@ export default function StaffPage() {
                   <ul className="m-0 list-none p-0">
                     {assignments.slice(0, 3).map((row) => (
                       <li key={`${row.tourId}-${row.dutyRole}`}>
-                        <Link href={`/admin/trips/${row.tourId}`} className="text-accent">
+                        <Link href={`/admin/trips/${row.tourId}`} className="text-accent-text">
                           {row.tourTitle}
                         </Link>
                         <span className="text-xs text-ink-faint">

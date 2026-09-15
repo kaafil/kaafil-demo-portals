@@ -68,12 +68,14 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-border-faint: var(--border-faint);
+  --color-border-control: var(--border-control);
   --color-hover-wash: var(--hover-wash);
 
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
 
   --color-success: var(--success);
   --color-success-bg: var(--success-bg);

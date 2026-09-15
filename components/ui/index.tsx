@@ -25,7 +25,7 @@ const TONE_CLASS: Record<Tone, string> = {
   danger: 'bg-danger-bg text-danger border-danger-border',
   neutral: 'bg-neutral-bg text-neutral border-neutral-border',
   info: 'bg-info-bg text-info border-info-border',
-  accent: 'bg-accent-soft text-accent border-border',
+  accent: 'bg-accent-soft text-accent-text border-border',
 };
 
 export function Chip({ tone, label }: { tone: Tone; label: string }) {
