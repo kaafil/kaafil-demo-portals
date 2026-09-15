@@ -166,7 +166,10 @@
      top bar's background) and not the source (the accent). */
   --sidebar-width: 15rem;
   --topbar-height: 3.25rem;
-  --tabbar-height: 3.5rem;
+  /* No `--tabbar-height`: the manager surface brings its own bottom tab bar
+     and owns its height. A host token for it would be a knob wired to
+     nothing, which is the one failure `pnpm audit:tokens` exists to catch —
+     and did catch, the moment the placeholder bar came out. */
 
   /* Table density.
 
