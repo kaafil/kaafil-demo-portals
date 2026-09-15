@@ -63,11 +63,22 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
       </header>
 
       <div className="flex items-stretch">
+        {/*
+          Sticky, and a fixed height rather than a minimum.
+
+          The nav was `min-height: 100dvh` and scrolled away with the page,
+          which put the identity block at the foot of the DOCUMENT instead of
+          the foot of the screen — so on any list long enough to scroll, it was
+          never visible. A back office pins its nav; the first prospect does
+          too. `overflow-y: auto` so a long nav scrolls inside itself rather
+          than pushing the identity block off the bottom.
+        */}
         <nav
-          className="flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg pt-3"
+          className="sticky flex shrink-0 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar-bg pt-3"
           style={{
             width: 'var(--sidebar-width)',
-            minHeight: 'calc(100dvh - var(--topbar-height))',
+            top: 'var(--topbar-height)',
+            height: 'calc(100dvh - var(--topbar-height))',
           }}
         >
           {NAV.map((section) => (
