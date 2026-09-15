@@ -1,4 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" fill="#40566e"/>
-  <text x="32" y="40" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#fff">ST</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="512" height="512" role="img" aria-label="Kaafil">
+  <title>Kaafil</title>
+  <rect width="120" height="120" fill="#12212E"/>
+  <g stroke="#FBF9F3" stroke-width="9" stroke-linecap="round" fill="none">
+    <line x1="40" y1="30" x2="40" y2="90"/>
+    <line x1="40" y1="60" x2="82" y2="30"/>
+    <line x1="40" y1="60" x2="82" y2="90"/>
+  </g>
+  <circle cx="82" cy="30" r="6" fill="#EA9940"/>
 </svg>

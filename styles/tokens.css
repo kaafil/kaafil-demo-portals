@@ -27,36 +27,71 @@
  * reskinner who collapses `--surface`, `--surface-alt` and `--canvas` to one
  * value will get a flat page and conclude the design system is broken; the
  * three steps are what give a dense table its readable structure.
+ *
+ * ── THIS BRANCH: THE "HARBOR" PALETTE ──────────────────────────────────────
+ *
+ * Ported from `kaafil-developer-portal/src/app/global.css`, which is the
+ * canonical Kaafil palette: navy ink, a warm cream ground, an amber signature
+ * and navy-tinted layered shadows. Three deliberate departures from its literal
+ * values, each because this is a dense CRM and that is a documentation site:
+ *
+ *   `--canvas` is `#f4f2ed`, not Harbor's `#ffffff`. Harbor declares its page
+ *   and its cards the same colour and gets away with it because it is mostly
+ *   prose with two or three cards on it. Here `components/ui/index.tsx` wraps
+ *   EVERYTHING in `bg-surface shadow-card`, so a white ground makes every card
+ *   in the product invisible and loses the one thing Harbor's own header claims
+ *   ("lifted cards on a warm canvas"). Taking its intent over its value.
+ *
+ *   `--ink-faint` is `#646f76`, two steps darker than Harbor's `#7b868d`, which
+ *   is 3.73:1 on white. In Harbor that token tints doc metadata; here it
+ *   carries the nav group headings, the masthead company name and every stat
+ *   hint, and 3.7:1 on a nav label is not defensible.
+ *
+ *   The status BASES are darkened into Harbor's own hues. Harbor's are
+ *   decorative — dots and callout bars — and score as low as 2.38:1. Here every
+ *   one of them goes through `Chip` as coloured text on its own tint, so each
+ *   base is pulled down until that chip clears AA. The tint backgrounds are
+ *   Harbor's exactly.
+ *
+ * `--accent` IS Harbor's signature `#ea9940`, unmodified, because `--accent-ink`
+ * is navy rather than white — 7.72:1, and the mark's own pairing. The text duty
+ * it could not carry lives in `--accent-text`; see that token.
+ *
+ * The composition: white masthead over a cream rail flowing into a cream
+ * content area, with white cards floating on it. The only white in the body is
+ * the card, so the card is the lifted object — Harbor's signature stated as a
+ * layout rather than as a shadow value. The navy logo tile is then the only
+ * dark object in the whole skin, which is what anchors it.
  */
 
 :root {
   /* ── Canvas / surface ramp ──────────────────────────────────────────────
      Three steps, and they are different things: the page behind everything,
      the card that sits on it, and the recessed well inside the card. */
-  --canvas: #eef0f2;
+  --canvas: #f4f2ed;
   --surface: #ffffff;
-  --surface-alt: #f6f7f8;
-  --surface-sunken: #e9ebee;
-  --zebra: #f8f9fa;
+  --surface-alt: #faf9f6;
+  --surface-sunken: #efece5;
+  --zebra: #fbfaf8;
 
   /* ── Text ramp ──────────────────────────────────────────────────────────
      Four steps including a disabled one. `--ink-faint` is for metadata that
      should be legible but never compete; `--ink-disabled` means inoperable
      and is the only one allowed to fail a contrast check. */
-  --ink: #1c2126;
-  --ink-soft: #4d5661;
-  --ink-faint: #79838f;
-  --ink-disabled: #a8b0b8;
+  --ink: #12212e;
+  --ink-soft: #45525b;
+  --ink-faint: #646f76;
+  --ink-disabled: #abb2b6;
   --ink-invert: #ffffff;
 
   /* ── Borders ────────────────────────────────────────────────────────────
      Two weights plus a distinct hover WASH. The wash is its own colour, never
      the border colour at reduced opacity: opacity composites against whatever
      is behind it, so a "subtle" border goes muddy over a zebra row. */
-  --border: #cdd3d9;
-  --border-strong: #9aa3ad;
-  --border-faint: #e2e6ea;
-  --hover-wash: #f0f3f6;
+  --border: #dfdbd3;
+  --border-strong: #c9c4b9;
+  --border-faint: #eae7e1;
+  --hover-wash: #f4f2ed;
 
   /* The boundary of a control the user is meant to TYPE IN, as opposed to the
      outline of a card. Separate from `--border` because the two have different
@@ -72,7 +107,7 @@
      `main` points this at `--border`, which is the honest default: `main` is
      not a design and its inputs fail the check exactly as they did before this
      token existed. A branch that cares gives it a real value. */
-  --border-control: var(--border);
+  --border-control: #b9b2a4;
 
   /* ── Accent ─────────────────────────────────────────────────────────────
      ONE accent, and the restraint rule that comes with it: it belongs to the
@@ -82,10 +117,10 @@
 
      `main`'s accent is a muted slate-blue on purpose — present enough to see
      the system working, bland enough that nobody mistakes it for a design. */
-  --accent: #40566e;
-  --accent-hover: #334659;
-  --accent-soft: #e4e9ef;
-  --accent-ink: #ffffff;
+  --accent: #ea9940;
+  --accent-hover: #d4842c;
+  --accent-soft: #f8dfb8;
+  --accent-ink: #12212e;
 
   /* The accent AS TEXT, on `--surface` or on `--accent-soft`. Not a second
      brand colour — the same colour's legible sibling, and usually a darker
@@ -117,47 +152,47 @@
 
      `main` points it at `--accent` so nothing about `main` renders differently
      than it did before. */
-  --accent-text: var(--accent);
+  --accent-text: #8f4e13;
 
   /* ── Status ─────────────────────────────────────────────────────────────
      Three parts each — base, soft tint, border — not one colour per status.
      A banner needs all three, a badge needs base+tint, an icon needs base. A
      single-colour status token forces every consumer to invent the other two. */
-  --success: #17603a;
-  --success-bg: #e3f1e9;
-  --success-border: #b9d9c8;
+  --success: #2f6b68;
+  --success-bg: #e1eeec;
+  --success-border: #bcd8d5;
 
   --warning: #7d5300;
-  --warning-bg: #f7edd8;
-  --warning-border: #e2cf9f;
+  --warning-bg: #f0e2c0;
+  --warning-border: #ddc894;
 
-  --danger: #8f2020;
-  --danger-bg: #f6e2e2;
-  --danger-border: #e0b9b9;
+  --danger: #a03a33;
+  --danger-bg: #f5d9d5;
+  --danger-border: #e6b5ae;
 
-  --info: #1c5566;
-  --info-bg: #dfeef2;
-  --info-border: #b3d5de;
+  --info: #2a6273;
+  --info-bg: #d9e7ea;
+  --info-border: #b5d0d7;
 
-  --neutral: #4a545f;
-  --neutral-bg: #e8eaed;
-  --neutral-border: #ccd1d7;
+  --neutral: #45525b;
+  --neutral-bg: #eceae6;
+  --neutral-border: #d8d4cc;
 
   /* ── Radius ─────────────────────────────────────────────────────────────
      A small explicit step scale. `--radius-control` is the one the Kaafil
      bridge reads, so it is the one that decides whether the embedded surface
      looks like it belongs. */
-  --radius-control: 3px;
-  --radius-card: 4px;
+  --radius-control: 0.5rem;
+  --radius-card: 0.875rem;
   --radius-pill: 999px;
 
   /* ── Elevation ──────────────────────────────────────────────────────────
      Named by USE CASE, never `--shadow-1..4`. Somebody restyling "the modal"
      should not first have to learn that a modal happens to be depth 3. */
-  --shadow-card: 0 1px 2px rgb(28 33 38 / 0.1);
-  --shadow-card-raised: 0 2px 6px rgb(28 33 38 / 0.14);
-  --shadow-modal: 0 8px 28px rgb(28 33 38 / 0.22);
-  --shadow-popover: 0 4px 12px rgb(28 33 38 / 0.16);
+  --shadow-card: 0 1px 2px -1px rgb(18 33 46 / 0.07), 0 2px 6px -2px rgb(18 33 46 / 0.05);
+  --shadow-card-raised: 0 2px 4px -2px rgb(18 33 46 / 0.06), 0 12px 28px -10px rgb(18 33 46 / 0.1);
+  --shadow-modal: 0 6px 12px -4px rgb(18 33 46 / 0.08), 0 24px 48px -16px rgb(18 33 46 / 0.14);
+  --shadow-popover: 0 2px 6px -2px rgb(18 33 46 / 0.08), 0 10px 24px -8px rgb(18 33 46 / 0.12);
 
   /* ── Type ───────────────────────────────────────────────────────────────
      A system stack on `main`: no webfont, nothing to license, nothing that
@@ -167,22 +202,22 @@
      `--font-mono` is not decorative. Every id, reference and money figure in
      this product renders in it, because a column of tabular figures that
      doesn't line up is a column you cannot scan. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-geist-sans), Geist, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --text-xs: 0.6875rem;
-  --text-sm: 0.75rem;
-  --text-base: 0.8125rem;
-  --text-md: 0.875rem;
-  --text-lg: 1rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
   /* One step past the desk's largest heading, for `/` alone. Every other size
      here is sized for a dense table; a first impression built by stacking two
      table headings is a first impression no branch can retune. */
-  --text-3xl: 2rem;
+  --text-3xl: 2.25rem;
 
-  --leading-tight: 1.25;
+  --leading-tight: 1.2;
   --leading-normal: 1.5;
 
   /* ── Spacing rhythm ─────────────────────────────────────────────────────
@@ -198,7 +233,7 @@
      the landing screen can breathe without a component reaching for an
      arbitrary `py-12`, and so a branch can make it breathe differently. */
   --space-7: 3rem;
-  --space-8: 4rem;
+  --space-8: 4.5rem;
 
   /* ── Chrome ─────────────────────────────────────────────────────────────
      The portals' own furniture. A branch whose prospect runs a 280px sidebar
@@ -222,7 +257,7 @@
      stating: a token that a component consumes should name the ROLE (the
      top bar's background) and not the source (the accent). */
   --sidebar-width: 15rem;
-  --topbar-height: 3.25rem;
+  --topbar-height: 4rem;
   /* No `--tabbar-height`: the manager surface brings its own bottom tab bar
      and owns its height. A host token for it would be a knob wired to
      nothing, which is the one failure `pnpm audit:tokens` exists to catch —
@@ -235,29 +270,29 @@
      changes how a table feels. Setting only the row height on a table whose
      rows are already content-sized does nothing, and a branch that tried it
      would reasonably conclude the token system was decorative. */
-  --row-height: 2rem;
-  --cell-padding-y: 0.375rem;
-  --cell-padding-x: 0.75rem;
+  --row-height: 3.5rem;
+  --cell-padding-y: 0.875rem;
+  --cell-padding-x: 1.25rem;
 
   /* Nav rows. Travyan's console sets these much airier than `main` does, and
      an icon column that a branch cannot resize is an icon column that will
      look wrong in half of them. */
-  --nav-row-height: 2rem;
-  --nav-row-gap: 0.125rem;
+  --nav-row-height: 2.75rem;
+  --nav-row-gap: 0.25rem;
   --nav-padding-x: 1rem;
-  --nav-icon-size: 1rem;
-  --nav-group-gap: 1rem;
+  --nav-icon-size: 1.125rem;
+  --nav-group-gap: 1.5rem;
 
   /* The padding around a page's own content. Its own token rather than a
      `--space-*` step, because a branch that wants a roomier page should not
      have to move a spacing step that every card and stack also reads. */
-  --content-padding: 1rem;
+  --content-padding: 2rem;
 
-  --topbar-bg: var(--accent);
-  --topbar-ink: var(--accent-ink);
-  --topbar-border: transparent;
+  --topbar-bg: var(--surface);
+  --topbar-ink: var(--ink);
+  --topbar-border: var(--border);
 
-  --sidebar-bg: var(--surface);
+  --sidebar-bg: var(--canvas);
   --sidebar-ink: var(--ink-soft);
   --sidebar-border: var(--border);
 
@@ -267,14 +302,14 @@
   --nav-active-bg: var(--accent-soft);
   --nav-active-ink: var(--ink);
   --nav-active-marker: var(--accent);
-  --nav-hover-bg: var(--hover-wash);
+  --nav-hover-bg: #ebe8e1;
 
   /* ── Target size ────────────────────────────────────────────────────────
      A real token, not a convention each component has to remember. `--target-
      touch` is the floor for anything a thumb has to hit on the manager
      surface; `--target-pointer` is the desk's denser floor. */
   --target-touch: 2.75rem;
-  --target-pointer: 1.75rem;
+  --target-pointer: 2rem;
 
   /* ── Z-index ────────────────────────────────────────────────────────────
      Small, named, explicit. Two components must never have to guess whose
@@ -300,7 +335,7 @@
   /* ── Focus ──────────────────────────────────────────────────────────────
      Its own token, never "the accent". A branch may need a focus ring that
      survives against their accent, and that is a separate decision. */
-  --ring: #2f6fb5;
+  --ring: #b56b22;
   --ring-width: 2px;
 }
 

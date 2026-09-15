@@ -80,20 +80,39 @@ export interface Brand {
 }
 
 /**
- * `main`'s brand is the fixture's own operator: a fifteen-year-old tour
- * operator in Pune. Deliberately not a placeholder called "Acme" — a realistic
- * operator forces every screen to cope with genuine Indian names, GSTINs,
- * E.164 phone numbers and long Devanagari-adjacent place names, which is where
- * layouts actually break.
+ * This branch is the awkward one, and it is worth saying why before anyone
+ * "fixes" it.
+ *
+ * The host brand here is Kaafil's own, and Kaafil is also the product embedded
+ * inside it. So the CRM is a fictional operations desk that Kaafil runs, and
+ * `styles/tokens.css` carries the same palette as the developer portal — which
+ * makes this branch the one that answers "what does a Kaafil-branded surface
+ * actually look like" rather than "what does a prospect's surface look like".
+ *
+ * ── WHY THE VOCABULARY IS NOT KAAFIL'S ─────────────────────────────────────
+ *
+ * Every OTHER branch changes these words. This one deliberately does not, and
+ * the temptation to make them agree is exactly the thing to resist.
+ *
+ * The fixture is built on the premise that the CRM and Kaafil do not share
+ * words: this desk says *departure*, *tour leader*, `ON_TOUR`; Kaafil says
+ * *trip*, *manager*, `IN_PROGRESS`. `lib/ingest.ts` exists to reconcile the
+ * two, and that reconciliation is the hardest and most instructive part of the
+ * whole integration. If the host said "trip" there would be nothing left to
+ * reconcile and the demo would quietly stop demonstrating it.
+ *
+ * So a reviewer who notices that the embedded panel says "Trip" where the nav
+ * says "Departures" is watching the translation layer work, not finding a bug.
  */
 export const BRAND: Brand = {
-  productName: 'Sharma Travels Admin',
-  companyName: 'Sharma Travels Pvt. Ltd.',
-  shortName: 'STPL',
+  productName: 'Kaafil Travel Desk',
+  companyName: 'Kaafil',
+  shortName: 'Kaafil',
   logoPath: '/brand/logo.svg',
-  tagline: 'Back office — departures, manifests and collections.',
+  tagline: 'Every departure, manifest and collection — on one desk.',
   colorScheme: 'light',
 
+  // Unchanged from `main`, on purpose. See the block above.
   vocabulary: {
     tour: 'departure',
     tourPlural: 'departures',
