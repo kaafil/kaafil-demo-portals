@@ -56,6 +56,26 @@ export interface Brand {
   logoPath: string | null;
   /** One line under the sign-in heading. */
   tagline: string;
+  /**
+   * Which colour scheme this CRM is built in. Passed straight to the Kaafil
+   * provider as `theme`.
+   *
+   * NOT SAFE TO OMIT. The provider's own default is `'system'`, which follows
+   * the VIEWER'S operating system. That is right for a product that is the
+   * whole page and implements both schemes; it is wrong for an embedded
+   * surface, because the host decides what the page looks like — and most CRMs,
+   * this one included, are built in one scheme only.
+   *
+   * Leave it unset and a reviewer whose laptop is in dark mode sees a light CRM
+   * with dark Kaafil panels inside it. That is the exact seam the token bridge
+   * exists to prevent, arriving through a door the bridge does not cover: the
+   * tokens map correctly, and then the kit re-points them at its dark set.
+   *
+   * `styles/tokens.css` declares light values and no dark block, so the honest
+   * answer here is `'light'`. A branch whose CRM is genuinely dark says
+   * `'dark'`; one that implements both says `'system'` and means it.
+   */
+  colorScheme: 'light' | 'dark' | 'system';
   vocabulary: BrandVocabulary;
 }
 
@@ -72,6 +92,7 @@ export const BRAND: Brand = {
   shortName: 'STPL',
   logoPath: '/brand/logo.svg',
   tagline: 'Back office — departures, manifests and collections.',
+  colorScheme: 'light',
 
   vocabulary: {
     tour: 'departure',

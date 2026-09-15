@@ -158,6 +158,8 @@ export default function ManagerAppInner({ managerRef }: { managerRef: string }) 
         credentialResolver={credentialResolver}
         {...(storage === null ? {} : { storage })}
         offlineScope={managerRef}
+        // The host's scheme, never the viewer's OS — see `Brand.colorScheme`.
+        theme={BRAND.colorScheme}
         density="comfortable"
         locale="en-IN"
         brand={hostBrand(`${BRAND.shortName} Field`)}
