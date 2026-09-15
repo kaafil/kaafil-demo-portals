@@ -1,0 +1,93 @@
+/**
+ * The seam remover.
+ *
+ * This file is the single reason a client branch can re-skin BOTH the CRM and
+ * the embedded Kaafil surfaces by editing one `:root` block. Every value below
+ * is a `var()` reference into `styles/tokens.css` — never a literal. So when a
+ * branch changes `--accent`, Kaafil's primary buttons change with it, in the
+ * same commit, without anyone touching a Kaafil file.
+ *
+ * That is the pitch, made mechanically true instead of merely claimed: the
+ * embedded product cannot drift from the host's brand, because it is not
+ * holding its own copy of the brand.
+ *
+ * ── WHY @layer AND NOT !important ──────────────────────────────────────────
+ *
+ * `kaafil-react-uikit` ships its CSS into the `kaafil-ui` layer and reserves
+ * `kaafil-ui-overrides` for the host. Layer order beats specificity outright,
+ * so declaring the order once — as the first thing in the cascade — means our
+ * overrides win by *being declared later*, not by out-specifying anything.
+ * No `!important`, no escalating selector war, and no chance of a future
+ * uikit release quietly out-specifying us.
+ *
+ * This only works because the kit's CSS is opt-in: it never injects itself on
+ * JS import, so `app/globals.css` controls exactly where in the cascade it
+ * lands. If it auto-injected, the layer order would depend on bundler
+ * ordering and this file would be a coin flip.
+ *
+ * ── THE TWELVE ─────────────────────────────────────────────────────────────
+ *
+ * `kaafil-product-docs/ui-kit/05-theming-and-branding.md §2.2` names a subset
+ * of twelve semantic tokens that ALONE satisfy the reskin done-gate: a
+ * side-by-side screenshot where a non-technical reviewer cannot find the
+ * seam. They are drawn exclusively from the kit's semantic layer — never a
+ * primitive, never a component-scoped token — because either would defeat the
+ * point of a small, stable reskin surface.
+ *
+ * All twelve are mapped below and they are the whole required surface. If you
+ * find yourself adding a thirteenth, ask first whether the CRM token it would
+ * read from is the one actually wrong.
+ */
+
+/* The layer ORDER is declared at the top of `app/globals.css`, before any
+   @import, because order is fixed by first appearance and the kit's own
+   stylesheet is imported before this file. Declaring it again here would be
+   a no-op at best and a lie at worst. */
+
+@layer kaafil-ui-overrides {
+  :root {
+    /* ── THE TWELVE ─────────────────────────────────────────────────────── */
+
+    /* 1-3 · accent family. Kaafil's primary action becomes the CRM's. */
+    --kf-accent: var(--accent);
+    --kf-accent-hover: var(--accent-hover);
+    --kf-accent-contrast: var(--accent-ink);
+
+    /* 4-6 · surface family. Mapped to the CRM's ramp step for step, which is
+       why the CRM's surface ramp has to stay a ramp — see tokens.css. */
+    --kf-surface-base: var(--canvas);
+    --kf-surface-raised: var(--surface);
+    --kf-surface-sunken: var(--surface-sunken);
+
+    /* 7-9 · text family. */
+    --kf-text-primary: var(--ink);
+    --kf-text-secondary: var(--ink-soft);
+    --kf-text-muted: var(--ink-faint);
+
+    /* 10 · danger. Note there is no success/warning here: the twelve include
+       danger only, because destructive confirmation is the one status a host
+       brand almost always has its own strong opinion about. */
+    --kf-danger: var(--danger);
+
+    /* 11 · control radius. The cheapest tell that two UIs were not built
+       together is a 3px input sitting next to an 8px one. */
+    --kf-radius-control: var(--radius-control);
+
+    /* 12 · focus ring. Deliberately its own CRM token rather than the accent,
+       so a branch can keep a legible ring against a difficult brand colour. */
+    --kf-focus-ring: var(--ring);
+
+    /* ── Beyond the twelve — optional refinement ────────────────────────────
+       Everything above is required. Everything below is polish, and a branch
+       is free to delete the block wholesale and still pass the done-gate. */
+
+    --kf-accent-soft: var(--accent-soft);
+    --kf-border-subtle: var(--border-faint);
+    --kf-border-strong: var(--border-strong);
+    --kf-border-hover-wash: var(--hover-wash);
+    --kf-success: var(--success);
+    --kf-warning: var(--warning);
+    --kf-font-family: var(--font-sans);
+    --kf-font-family-mono: var(--font-mono);
+  }
+}

@@ -1,0 +1,148 @@
+/**
+ * The one stylesheet the app loads, and the only place cascade order is decided.
+ *
+ * ── READ THE ORDER BEFORE CHANGING IT ──────────────────────────────────────
+ *
+ * 1. The `@layer` statement comes FIRST, before any `@import`. CSS fixes layer
+ *    order by first appearance, so declaring the order up front is what makes
+ *    `kaafil-ui-overrides` beat `kaafil-ui` — by declaration order, not by
+ *    specificity. This is the one line that lets `styles/kaafil-bridge.css`
+ *    work without a single `!important`.
+ *
+ *    (`@layer` statements are allowed above `@import`; only `@charset` outranks
+ *    them. Moving this line below the imports silently inverts the override.)
+ *
+ * 2. Tailwind, then the kit's CSS, then our tokens, then the bridge. The
+ *    bridge has to come after the kit so its `:root` block is the later
+ *    declaration within the override layer.
+ *
+ * 3. `kaafil-react-uikit/styles` is imported EXACTLY ONCE, here. The kit never
+ *    injects its own CSS on JS import, and that is deliberate — it is what
+ *    makes this ordering predictable instead of dependent on which component
+ *    a bundler happened to reach first.
+ */
+
+@layer kaafil-ui, kaafil-ui-overrides;
+
+@import 'tailwindcss';
+@import 'kaafil-react-uikit/styles';
+@import '../styles/tokens.css';
+@import '../styles/kaafil-bridge.css';
+
+/**
+ * Expose the CRM's tokens to Tailwind's utility generator.
+ *
+ * `inline` matters: it makes Tailwind emit `var(--accent)` into the utility
+ * rather than resolving the value at build time. That is exactly what a client
+ * branch needs — `bg-accent` follows a token change with no rebuild of the
+ * utility, and a scoped override (a `[data-theme]` block, a per-org style
+ * attribute) can retarget every utility at once.
+ */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-zebra: var(--zebra);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-disabled: var(--ink-disabled);
+  --color-ink-invert: var(--ink-invert);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-faint: var(--border-faint);
+  --color-hover-wash: var(--hover-wash);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-border: var(--danger-border);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
+  --color-neutral: var(--neutral);
+  --color-neutral-bg: var(--neutral-bg);
+  --color-neutral-border: var(--neutral-border);
+
+  --color-ring: var(--ring);
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-raised: var(--shadow-card-raised);
+  --shadow-modal: var(--shadow-modal);
+  --shadow-popover: var(--shadow-popover);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-md: var(--text-md);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+
+  --ease-standard: var(--ease-standard);
+  --ease-decelerate: var(--ease-decelerate);
+  --ease-accelerate: var(--ease-accelerate);
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────
+   Everything here reads a token. Nothing here picks a value. */
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures everywhere a number can line up under another number. A
+   money column that doesn't align is a money column nobody can scan. */
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* The share surface is a published document on somebody else's phone, not a
+   page inside the CRM. It gets the plain white ground rather than the CRM's
+   canvas, so it never reads as "an app I am logged out of". */
+[data-surface='share'] {
+  background: var(--surface);
+}

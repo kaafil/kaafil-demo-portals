@@ -1,0 +1,197 @@
+/**
+ * The host CRM's design system. ONE `:root` block, and nothing anywhere else
+ * in this repo hardcodes a colour, a radius, a shadow or a chrome dimension.
+ *
+ * ── THIS IS THE FILE A CLIENT BRANCH EDITS ─────────────────────────────────
+ *
+ * `main` holds deliberately plain values: flat greys, a system font stack,
+ * square-ish corners, one restrained accent. That is not laziness and it is
+ * not a placeholder to be "designed later" — it is the control. A branch that
+ * re-skins this file to look like a prospect's own CRM should need to touch
+ * almost nothing else, and the only way that stays true is if `main` never
+ * smuggles a literal into a component.
+ *
+ * The rule, stated so it can be enforced in review: if you are typing a `#`,
+ * a `px`, or an `rgba(` anywhere outside this file, you are writing a bug.
+ *
+ * ── WHY THE RAMPS ARE RAMPS ────────────────────────────────────────────────
+ *
+ * Categories follow `kaafil-product-docs/ui-kit/05-theming-and-branding.md
+ * §2.1`, including the two that document flags as gaps in the older reference
+ * app and that are closed here: an explicit `--target-*` hit-area family, and
+ * an explicit `--z-*` stacking scale. Both were previously ad-hoc per
+ * component (`h-11`, `z-50`), which means two components eventually disagree
+ * and nobody can say which is right.
+ *
+ * Surfaces and text are STEPPED ramps, not a foreground/background pair. A
+ * reskinner who collapses `--surface`, `--surface-alt` and `--canvas` to one
+ * value will get a flat page and conclude the design system is broken; the
+ * three steps are what give a dense table its readable structure.
+ */
+
+:root {
+  /* ── Canvas / surface ramp ──────────────────────────────────────────────
+     Three steps, and they are different things: the page behind everything,
+     the card that sits on it, and the recessed well inside the card. */
+  --canvas: #eef0f2;
+  --surface: #ffffff;
+  --surface-alt: #f6f7f8;
+  --surface-sunken: #e9ebee;
+  --zebra: #f8f9fa;
+
+  /* ── Text ramp ──────────────────────────────────────────────────────────
+     Four steps including a disabled one. `--ink-faint` is for metadata that
+     should be legible but never compete; `--ink-disabled` means inoperable
+     and is the only one allowed to fail a contrast check. */
+  --ink: #1c2126;
+  --ink-soft: #4d5661;
+  --ink-faint: #79838f;
+  --ink-disabled: #a8b0b8;
+  --ink-invert: #ffffff;
+
+  /* ── Borders ────────────────────────────────────────────────────────────
+     Two weights plus a distinct hover WASH. The wash is its own colour, never
+     the border colour at reduced opacity: opacity composites against whatever
+     is behind it, so a "subtle" border goes muddy over a zebra row. */
+  --border: #cdd3d9;
+  --border-strong: #9aa3ad;
+  --border-faint: #e2e6ea;
+  --hover-wash: #f0f3f6;
+
+  /* ── Accent ─────────────────────────────────────────────────────────────
+     ONE accent, and the restraint rule that comes with it: it belongs to the
+     primary action and to live/active state, and nowhere else. An accent
+     scattered as decoration stops meaning anything, and then the one button
+     that actually matters has no way to shout.
+
+     `main`'s accent is a muted slate-blue on purpose — present enough to see
+     the system working, bland enough that nobody mistakes it for a design. */
+  --accent: #40566e;
+  --accent-hover: #334659;
+  --accent-soft: #e4e9ef;
+  --accent-ink: #ffffff;
+
+  /* ── Status ─────────────────────────────────────────────────────────────
+     Three parts each — base, soft tint, border — not one colour per status.
+     A banner needs all three, a badge needs base+tint, an icon needs base. A
+     single-colour status token forces every consumer to invent the other two. */
+  --success: #17603a;
+  --success-bg: #e3f1e9;
+  --success-border: #b9d9c8;
+
+  --warning: #7d5300;
+  --warning-bg: #f7edd8;
+  --warning-border: #e2cf9f;
+
+  --danger: #8f2020;
+  --danger-bg: #f6e2e2;
+  --danger-border: #e0b9b9;
+
+  --info: #1c5566;
+  --info-bg: #dfeef2;
+  --info-border: #b3d5de;
+
+  --neutral: #4a545f;
+  --neutral-bg: #e8eaed;
+  --neutral-border: #ccd1d7;
+
+  /* ── Radius ─────────────────────────────────────────────────────────────
+     A small explicit step scale. `--radius-control` is the one the Kaafil
+     bridge reads, so it is the one that decides whether the embedded surface
+     looks like it belongs. */
+  --radius-control: 3px;
+  --radius-card: 4px;
+  --radius-pill: 999px;
+
+  /* ── Elevation ──────────────────────────────────────────────────────────
+     Named by USE CASE, never `--shadow-1..4`. Somebody restyling "the modal"
+     should not first have to learn that a modal happens to be depth 3. */
+  --shadow-card: 0 1px 2px rgb(28 33 38 / 0.1);
+  --shadow-card-raised: 0 2px 6px rgb(28 33 38 / 0.14);
+  --shadow-modal: 0 8px 28px rgb(28 33 38 / 0.22);
+  --shadow-popover: 0 4px 12px rgb(28 33 38 / 0.16);
+
+  /* ── Type ───────────────────────────────────────────────────────────────
+     A system stack on `main`: no webfont, nothing to license, nothing that
+     looks designed. A branch swaps `--font-sans` and, if the prospect's CRM
+     uses one, adds a `next/font` import in `app/layout.tsx`.
+
+     `--font-mono` is not decorative. Every id, reference and money figure in
+     this product renders in it, because a column of tabular figures that
+     doesn't line up is a column you cannot scan. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.8125rem;
+  --text-md: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  /* ── Spacing rhythm ─────────────────────────────────────────────────────
+     Reusable spacing. Distinct from the chrome dimensions below, which
+     describe one specific piece of furniture rather than a rhythm. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* ── Chrome ─────────────────────────────────────────────────────────────
+     The desk portal's own furniture. A branch whose prospect runs a 280px
+     sidebar changes one number here, not a layout component. */
+  --sidebar-width: 15rem;
+  --topbar-height: 3.25rem;
+  --row-height: 2rem;
+  --tabbar-height: 3.5rem;
+
+  /* ── Target size ────────────────────────────────────────────────────────
+     A real token, not a convention each component has to remember. `--target-
+     touch` is the floor for anything a thumb has to hit on the manager
+     surface; `--target-pointer` is the desk's denser floor. */
+  --target-touch: 2.75rem;
+  --target-pointer: 1.75rem;
+
+  /* ── Z-index ────────────────────────────────────────────────────────────
+     Small, named, explicit. Two components must never have to guess whose
+     stacking context wins. */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-overlay: 20;
+  --z-modal: 30;
+  --z-toast: 40;
+
+  /* ── Motion ─────────────────────────────────────────────────────────────
+     Its own category, which most token systems skip and then regret. Each
+     ease says when to use it, because "which curve" is the question that
+     actually gets asked. */
+  --ease-standard: cubic-bezier(0.2, 0, 0.2, 1); /* moving within the page */
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1); /* entering the page */
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1); /* leaving the page */
+
+  --duration-fast: 90ms;
+  --duration-base: 160ms;
+  --duration-slow: 260ms;
+
+  /* ── Focus ──────────────────────────────────────────────────────────────
+     Its own token, never "the accent". A branch may need a focus ring that
+     survives against their accent, and that is a separate decision. */
+  --ring: #2f6fb5;
+  --ring-width: 2px;
+}
+
+/* Everybody who asks for reduced motion gets it, at the token level, so no
+   individual component has to remember the media query. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
