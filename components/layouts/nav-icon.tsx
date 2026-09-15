@@ -1,4 +1,7 @@
-import { CircleDot, Compass, type LucideIcon, Map, Users, Wallet } from 'lucide-react';
+// `Map` is aliased: lucide exports one, and an unaliased import shadows the
+// global `Map` for this whole module. Nothing here uses the global today,
+// which is exactly the kind of thing that stops being true quietly.
+import { CircleDot, Compass, type LucideIcon, Map as MapIcon, Users, Wallet } from 'lucide-react';
 
 /**
  * The nav's icon vocabulary.
