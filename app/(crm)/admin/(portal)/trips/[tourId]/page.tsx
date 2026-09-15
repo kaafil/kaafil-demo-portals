@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { TripOperations } from '@/components/kaafil/trip-workspace';
 import {
   BookingStatusChip,
   Chip,
@@ -16,9 +17,26 @@ import {
 } from '@/components/ui';
 import { getStore } from '@/lib/db';
 import { amount, date, dateRange, money } from '@/lib/format';
+import { readStaff } from '@/lib/session';
 
-const TABS = ['overview', 'travellers', 'payments', 'staff'] as const;
+/**
+ * Four of these are Sharma Travels' own screens over its own database. The
+ * fifth, `onground`, is Kaafil — `TripWorkspace`, scoped to this departure.
+ *
+ * It sits in this list rather than in the sidebar on purpose. Kaafil also
+ * ships an agency-wide Surface, and mounting that here brought a complete
+ * second left nav — Trips, Travellers, Managers, Settings — inside a CRM that
+ * already has one. Two sidebars on one page is the clearest possible tell that
+ * something was bolted on, and no amount of token matching fixes it.
+ *
+ * As a tab, the shape is honest: the CRM keeps the navigation, the URL and the
+ * record, and Kaafil owns what happens inside one panel of it.
+ */
+const TABS = ['overview', 'travellers', 'payments', 'staff', 'onground'] as const;
 type Tab = (typeof TABS)[number];
+
+/** `onground` needs a real label; the rest read fine capitalised. */
+const TAB_LABEL: Partial<Record<Tab, string>> = { onground: 'On the ground' };
 
 /**
  * One departure, four tabs, tab held in the QUERY STRING.
@@ -48,6 +66,13 @@ export default async function TripDetailPage({
 }) {
   const { tourId } = await params;
   const { tab: rawTab } = await searchParams;
+
+  // The portal layout has already gated this route, so the redirect is
+  // unreachable in practice. It stays because the Kaafil tab reads this
+  // person's id to mint a session, and passing `undefined` into a session mint
+  // should be impossible by construction rather than by trusting a parent.
+  const staff = await readStaff('desk');
+  if (staff === null) redirect('/login');
 
   const detail = getStore().getTour(tourId);
   if (detail === null) notFound();
@@ -94,7 +119,7 @@ export default async function TripDetailPage({
                 : 'border-b-transparent text-ink-soft hover:bg-hover-wash'
             }`}
           >
-            {name}
+            {TAB_LABEL[name] ?? name}
           </Link>
         ))}
       </nav>
@@ -170,7 +195,10 @@ export default async function TripDetailPage({
             <p className="m-0 border-t border-border-faint bg-surface-alt px-3 py-2 text-sm text-ink-faint">
               This is the brochure itinerary. What actually happened on the ground — and what the
               leader changed — lives in Kaafil, under{' '}
-              <Link href="/admin/operations" className="text-accent">
+              <Link
+                href={`/admin/trips/${tour.tourId}?tab=onground` as never}
+                className="text-accent"
+              >
                 On the ground
               </Link>
               .
@@ -322,6 +350,18 @@ export default async function TripDetailPage({
             ))}
           </Table>
         </Panel>
+      )}
+
+      {/*
+        Kaafil. Note what is NOT happening here: no token is fetched, and no
+        Kaafil id is looked up. `TripOperations` asks `POST /api/admin-session`
+        for a credential of its own (minting one in this server component would
+        serialise a live access token into the RSC payload), and `tripRef` is
+        the CRM's own `tourId` — the engine resolves an external id, so the CRM
+        never has to store Kaafil's.
+      */}
+      {tab === 'onground' && (
+        <TripOperations tripRef={tour.tourId} agencyAdminRef={staff.staffId} />
       )}
     </>
   );

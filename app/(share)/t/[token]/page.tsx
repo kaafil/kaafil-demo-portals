@@ -1,37 +1,18 @@
+import { ShareView } from '@/components/kaafil/share-view';
+
 /**
- * PHASE 3 — this is where `KaafilShareView` mounts.
+ * The traveller's page. The token in the URL is the entire credential.
  *
- *   'use client'
- *   import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
- *   import { KaafilShareView } from 'kaafil-react-uikit/traveller';
+ * Deliberately the thinnest route in the repo: no gate, no store read, no
+ * session. Somebody's family opens this from a WhatsApp message and it has to
+ * work for a person who has never heard of Sharma Travels, let alone Kaafil.
  *
- *   <KaafilUIKitProvider shareToken={token}>
- *     <KaafilShareView token={token} headStrategy="own-page" />
- *   </KaafilUIKitProvider>
- *
- * Note the provider takes `shareToken` ALONE — no access token, no refresh
- * token, no agencyRef. That asymmetry is the persona model: the shape of the
- * credential decides what the kit renders, and a bare share token can only
- * ever produce the traveller surface.
- *
- * Which sections the traveller may see is the SERVER's answer, returned as a
- * flag per section when the link is created. A host can narrow that set; it
- * can never widen it. So a section missing from a share page is a token
- * configuration question, not a UI one.
+ * Which sections they can see is the SERVER's answer, fixed when the link was
+ * created and returned as a flag per section. A host can narrow that set and
+ * can never widen it — so a section missing from this page is a question about
+ * the token, not about this component.
  */
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-
-  return (
-    <main className="mx-auto max-w-lg px-4 py-8">
-      <h1 className="text-2xl font-semibold text-ink">Your trip</h1>
-      <p className="mt-2 text-md text-ink-soft">
-        This page is not wired up yet. <code className="tabular">KaafilShareView</code> from{' '}
-        <code className="tabular">kaafil-react-uikit/traveller</code> mounts here.
-      </p>
-      <p className="tabular mt-6 rounded-card border border-border bg-surface-alt px-3 py-2 text-sm break-all text-ink-faint">
-        token: {token}
-      </p>
-    </main>
-  );
+  return <ShareView token={token} />;
 }

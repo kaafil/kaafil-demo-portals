@@ -42,24 +42,17 @@ export function ManagerShell({ staff, children }: { staff: CrmStaff; children: R
         </div>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto p-3">{children}</main>
+      <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
 
       {/*
-        A placeholder bar. Once `KaafilManagerApp` mounts it brings its OWN tab
-        bar — Now / Trip / Money / Me — and this one goes away rather than
-        sitting above it. Two tab bars is the single most common way an
-        embedded mobile surface ends up looking bolted on.
+        The tab bar that used to sit here is gone.
+
+        `KaafilManagerApp` brings its own — Now, Trip, Money, Me — and two tab
+        bars stacked on a phone is the mobile equivalent of two sidebars: the
+        single clearest sign that one product was dropped into another. The
+        host keeps the masthead and the sign-out, and gives up the bottom of
+        the screen entirely.
       */}
-      <nav
-        className="flex shrink-0 items-center justify-around border-t border-sidebar-border bg-sidebar-bg"
-        style={{
-          height: 'var(--tabbar-height)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          zIndex: 'var(--z-sticky)',
-        }}
-      >
-        <span className="text-sm text-ink-faint">Kaafil&rsquo;s own tab bar mounts here</span>
-      </nav>
     </div>
   );
 }

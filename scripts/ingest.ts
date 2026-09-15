@@ -21,6 +21,7 @@
 
 import { readGeneratedBulkFixture } from '@/fixtures/bulk';
 import { CORE_FIXTURE } from '@/fixtures/core';
+import { enrichTrips } from '@/lib/enrich';
 import { runIngest } from '@/lib/ingest';
 import { createKaafilClient } from '@/lib/kaafil-client';
 
@@ -43,18 +44,72 @@ console.log(
   ].join('\n'),
 );
 
-const result = await runIngest(kaafil, { fixture, agencyRef: env.agencyRef });
+/**
+ * `--enrich-only` skips the seven-step push and goes straight to the depth
+ * pass. The base push is idempotent, but it also waits on a journey for every
+ * one of 51 workable trips, which is minutes of nothing when all you changed
+ * was a checklist.
+ */
+const enrichOnly = process.argv.includes('--enrich-only');
+
+const result = enrichOnly
+  ? {
+      tripRefs: fixture.tours.map((tour) => tour.tourId),
+      readyTripRefs: fixture.tours
+        .filter((tour) => tour.status !== 'CALLED_OFF')
+        .map((tour) => tour.tourId),
+      travellersPushed: 0,
+      managerRefs: [],
+      agencyAdminRefs: [],
+      failures: [],
+    }
+  : await runIngest(kaafil, { fixture, agencyRef: env.agencyRef });
+
+/**
+ * Which departures get operational depth.
+ *
+ * The six hand-written ones plus anything currently on the road — the trips a
+ * demo actually opens. Deepening all 56 is roughly 1,400 calls against a
+ * rate-limited tenant for screens nobody reaches; the generated bulk exists to
+ * make lists and paginators look real, and it does that while empty.
+ *
+ * `--shallow` skips the pass entirely, for when you only changed a manifest
+ * and do not want to wait.
+ */
+const deepRefs = new Set<string>([
+  ...CORE_FIXTURE.tours.map((tour) => tour.tourId),
+  ...fixture.tours.filter((tour) => tour.status === 'ON_TOUR').map((tour) => tour.tourId),
+]);
+
+const enriched = process.argv.includes('--shallow')
+  ? null
+  : await enrichTrips(kaafil, {
+      fixture,
+      tripRefs: [...deepRefs].filter((ref) => result.readyTripRefs.includes(ref)),
+      log: (line) => console.log(`[enrich] ${line}`),
+    });
 
 console.log(
   [
     '',
     'done',
+    ...(enrichOnly ? ['  (--enrich-only: the seven-step push was skipped)'] : []),
     `  trips pushed      ${result.tripRefs.length}`,
     `  trips workable    ${result.readyTripRefs.length}`,
     `  travellers        ${result.travellersPushed}`,
     `  managers          ${result.managerRefs.length}`,
     `  agency admins     ${result.agencyAdminRefs.length}`,
     `  failures          ${result.failures.length}`,
+    ...(enriched === null
+      ? ['', '  --shallow: no itineraries, rooming or checklists were pushed.']
+      : [
+          '',
+          `  itinerary items   ${enriched.itineraryItems}`,
+          `  rooms created     ${enriched.rooms}`,
+          `  travellers roomed ${enriched.roomingAssigned}`,
+          `  checklist items   ${enriched.checklistItems}`,
+          `  enrich failures   ${enriched.failures.length}`,
+        ]),
     '',
   ].join('\n'),
 );

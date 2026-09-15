@@ -18,7 +18,7 @@ not three tabs of one screen.
 
 | | Who | Where | What mounts |
 |---|---|---|---|
-| **`/admin`** | Desk executive in the Pune office | Desktop, sidebar, dense | `KaafilAgencyWorkspace` at `/admin/operations` |
+| **`/admin`** | Desk executive in the Pune office | Desktop, sidebar, dense | `TripWorkspace`, as one tab of the CRM's own departure page |
 | **`/m`** | Tour leader travelling with the group | Phone, bottom tabs, installable, **offline-first** | `KaafilManagerApp` |
 | **`/t/:token`** | A traveller or their family | Phone, no account, opened from WhatsApp | `KaafilShareView` |
 
@@ -46,9 +46,13 @@ the separation *is* the access control.
 pnpm install
 cp .env.example .env     # paste a key into KAAFIL_API_KEY
 pnpm seed                # builds crm.sqlite — 56 departures, 728 travellers
-pnpm seed:kaafil         # pushes them into your Kaafil tenant. Run once.
+pnpm seed:kaafil         # pushes them into your Kaafil tenant. Safe to re-run.
 pnpm dev                 # http://localhost:3000
 ```
+
+Sign in at `/login` — one page for the whole demo. Pick a **tour leader** and
+you land in the field app; pick a **desk executive** and you land at the office
+portal. Where you go follows from the job, because they are different products.
 
 Node 20.11+ and pnpm. No Docker, no database server.
 
@@ -74,6 +78,8 @@ holds nothing real.
 | `pnpm seed` | rebuild `crm.sqlite`. Offline, no key, safe to repeat |
 | `pnpm seed -- --core` | just the 6 hand-written departures |
 | `pnpm seed:kaafil` | push into your Kaafil tenant. Idempotent, rate-limited |
+| `pnpm seed:kaafil -- --enrich-only` | skip the 7-step push, redo just the depth pass |
+| `pnpm seed:kaafil -- --shallow` | push trips only; no itineraries, rooming or checklists |
 | `pnpm typecheck` / `pnpm lint` | tsc / Biome |
 | `pnpm audit:tokens` | fail if a token is declared and nothing reads it |
 
@@ -167,7 +173,9 @@ client's language in one object instead of one grep.
 - [x] **Phase 1** — the CRM, standing alone, with zero Kaafil code
 - [x] **Phase 2** — the key boundary, and the book of business in a live tenant
       (56 trips, 728 travellers, 16 managers, 4 agency admins, 0 failures)
-- [ ] **Phase 3** — the three surfaces mounted
+- [x] **Phase 3** — all three surfaces mounted and live, plus the depth pass
+      that fills them (106 itinerary items, 61 rooms, 104 travellers roomed,
+      126 checklist items)
 - [ ] **Phase 4** — the manager PWA and the offline outbox
 - [x] **Phase 5 (early)** — `client/travyan`, proving the re-skin path
 
@@ -191,3 +199,26 @@ return value reports zero records and looks exactly like a failed ingest.
 **Travellers show as "Not tracked" in the console's Plan & Usage.** That is the
 plan's metering, not your data — Storage says the same. Read a manifest back
 if you want to confirm what landed.
+
+**Declare all six CSS layers, with `base` before `kaafil-ui`.** Tailwind's
+preflight resets every `button` to `padding: 0; background: transparent`.
+Declare only `@layer kaafil-ui, kaafil-ui-overrides;` and Tailwind appends its
+own layers after yours, so preflight beats the kit and every chip, tab and
+segmented control renders as bare text — while the CSS is loaded, the tokens
+resolve and the classes are on the elements. See `app/globals.css`.
+
+**The staff surfaces cannot server-render.** The session opens via an async
+fetch, so on the server the provider has nothing to hand down and the first
+data hook throws `useKaafilClient() was called outside a <SessionShell>`. Load
+them with `ssr: false` — `components/kaafil/surface.tsx`.
+
+**With a `credentialResolver`, gate on `useSession().status`.** There is a
+first commit where the shell has mounted and no client exists. The big
+Surfaces handle it; `TripWorkspace` does not. The failure is nasty: the child
+throws, the boundary swallows it, the subtree unmounts, and the effect that
+would have opened the session never runs — so the network tab shows *no
+request at all*, which reads like a broken credential rather than a race.
+
+**The depth pass is not made of upserts.** `itinerary.items.add` appends, room
+codes are unique per stay window, checklist keys unique per section. `enrich.ts`
+reads before it writes for exactly that reason; see its header.
