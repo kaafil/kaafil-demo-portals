@@ -697,7 +697,7 @@ export function seedStore(fixture: CrmFixture = CORE_FIXTURE): StoreCounts {
 
 /**
  * Opens the store that `seedStore()` already built and returns the read API
- * the `/api/crm/*` routes use.
+ * every desk screen renders from.
  *
  * It refuses rather than seeds when the file is missing. A route handler that
  * silently seeded would turn "you forgot `pnpm seed`" into a mysteriously slow

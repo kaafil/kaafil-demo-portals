@@ -99,7 +99,7 @@ app/
   (crm)/        the desk portal. Its own screens + one Kaafil section
   (manager)/    the field app. Own manifest, own shell, own cookie
   (share)/      the public traveller page. No gate, no chrome
-  api/          3 routes hold the key; the rest read SQLite
+  api/          the 3 routes that hold the key, plus health
 components/
   kaafil/       every Kaafil touchpoint — providers, credentials, brand, SW
   crm/ ui/      the host's own tables and primitives
@@ -185,7 +185,7 @@ anywhere in this repo.
 | | |
 |---|---|
 | The CRM, standing alone | 56 departures, 728 travellers, 20 staff, in SQLite |
-| The key boundary | `KAAFIL_API_KEY` server-side only, three routes mint sessions |
+| The key boundary | `KAAFIL_API_KEY` server-side only; three routes mint sessions |
 | All three surfaces | desk, field and traveller, each in its own route group |
 | Depth beyond the ingest | itineraries, rooming, checklists, floats, pickups, balances |
 | Offline | installable PWA, cached shell and credential, outbox that drains |

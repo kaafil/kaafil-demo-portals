@@ -10,17 +10,15 @@ export const metadata: Metadata = { title: 'Departures' };
 /**
  * The desk's home screen: every departure the office runs.
  *
- * A server component reading the store directly. There is a `GET /api/crm/trips`
- * next door and this screen deliberately does not call it — a Next CRM renders
- * its own data on the server, and fetching your own API over HTTP from a server
- * component is a round trip that buys nothing.
+ * A server component reading the store directly, with no HTTP hop in between.
+ * That is the pattern every desk screen here follows: a Next CRM renders its
+ * own data on the server, and fetching your own API from a server component is
+ * a round trip that buys nothing.
  *
- * The route still exists because a real CRM exposes its records over HTTP for
- * everything that is not a page: a mobile client, a partner integration, a
- * back-office script. `config/contract.ts` types that surface once so both ends
- * agree — see its header. Nothing in THIS repo consumes it, because every
- * screen here is server-rendered and the Kaafil surfaces talk to the engine
- * rather than to us.
+ * It is worth being explicit, because the instinct from a client-side CRM is
+ * to reach for `/api/...`. The only routes this app serves are the three that
+ * hold the Kaafil API key and cannot run in a browser — plus `/api/health`.
+ * Everything else reads `getStore()`.
  */
 export default function TripListPage() {
   const store = getStore();
