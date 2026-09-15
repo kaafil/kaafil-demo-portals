@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { signOut } from '@/app/_actions/auth';
 import { BRAND } from '@/config/brand';
 import type { CrmStaff } from '@/fixtures/types';
+import { Wordmark } from './wordmark';
 
 /**
  * The field app's chrome: a thin header and a bottom tab bar.
@@ -25,7 +26,10 @@ export function ManagerShell({ staff, children }: { staff: CrmStaff; children: R
         className="flex shrink-0 items-center justify-between gap-3 border-b border-topbar-border bg-topbar-bg px-3 text-topbar-ink"
         style={{ height: 'var(--topbar-height)' }}
       >
-        <span className="font-semibold">{BRAND.shortName} Field</span>
+        <span className="flex items-center gap-2 font-semibold">
+          <Wordmark height="1.25rem" />
+          <span className="text-sm font-normal opacity-80">Field</span>
+        </span>
         <div className="flex items-center gap-2 text-sm">
           <span className="opacity-90">{staff.fullName}</span>
           <form action={signOut.bind(null, 'manager')}>
