@@ -1,24 +1,33 @@
 /**
- * The CRM's own HTTP contract — the one both halves import.
+ * The HTTP contract between this app's browser code and its own route
+ * handlers, declared once so both sides depend on the same names.
  *
- * WHY THIS FILE EXISTS. A route handler and the component that calls it are
- * two different files that never reference each other, so nothing checks the
- * boundary between them. Left implicit, the failure looks like this: a browser
- * calling `/api/crm/tours` against a server serving `/api/crm/trips`, and a
- * sign-in screen typed `CrmStaff[]` against a server returning
- * `{ staff: { staff, assignments }[] }`. Both halves typecheck perfectly on
- * their own; the app 404s on every screen and the Sign in button never enables,
- * because the identity lookup silently never matches.
+ * WHY THAT MATTERS. A route handler and the code that calls it are two files
+ * that never reference each other, so nothing checks the boundary between them
+ * unless something like this exists. Left implicit, the failure looks like a
+ * browser calling `/api/session` against a server that renamed it, or a caller
+ * reading `session.agencyId` where the server sends `agencyRef`. Both halves
+ * typecheck perfectly on their own and the app fails at runtime, in a way that
+ * reads as an auth problem rather than a typo.
  *
- * Declaring the contract once and having BOTH sides depend on it turns that
- * entire class of defect into a compile error. The route handlers are typed by
- * their response, and the client's fetchers are typed by the same names.
+ * WHAT IS IN HERE. Two things, and the split is worth knowing:
+ *
+ *   KAAFIL_API + the session/share types   The three routes that hold the API
+ *                                          key. These are FETCHED by the
+ *                                          browser, so both ends are live.
+ *
+ *   The row shapes (TourSummary, ...)      What the store returns and the desk
+ *                                          screens render. They live here
+ *                                          rather than with the database
+ *                                          because they are read models — what
+ *                                          a screen needs, not what a table
+ *                                          holds — and `lib/db/store.ts`
+ *                                          re-exports them for its own callers.
  *
  * Anything that changes here must change on both sides, which is the point.
  */
 
 import type {
-  CrmAgency,
   CrmBooking,
   CrmPayment,
   CrmStaff,
@@ -28,27 +37,9 @@ import type {
 } from '@/fixtures/types';
 
 // ── Paths ───────────────────────────────────────────────────────────────────
-// Every URL either half of this app can call, named once. A caller imports the
-// constant instead of writing the string, so renaming a route is a compile
-// error at every call site rather than a 404 found by clicking.
-//
-// `CRM_API` has no caller inside this repo: every screen is server-rendered and
-// reads the store directly, so nothing here fetches the CRM's own HTTP surface.
-// It is declared anyway because the routes are real, and the moment anything
-// does call them — a mobile client, a partner integration — it should import
-// these rather than invent its own copy of the paths.
-
-export const CRM_API = {
-  /** The departures list, plus the agency the office belongs to. */
-  tours: '/api/crm/trips',
-  /** One departure, everything the detail screen needs, in one read. */
-  tour: (tourId: string) => `/api/crm/trips/${encodeURIComponent(tourId)}`,
-  /** Pattern form, for server route registration. */
-  tourPattern: '/api/crm/trips/:tourId',
-  travellers: '/api/crm/travellers',
-  staff: '/api/crm/staff',
-  health: '/api/health',
-} as const;
+// Every URL the browser calls, named once. A caller imports the constant
+// instead of writing the string, so renaming a route is a compile error at
+// every call site rather than a 404 found by clicking.
 
 /** The three routes that hold the API key. The browser never calls Kaafil. */
 export const KAAFIL_API = {
@@ -97,21 +88,6 @@ export interface StaffRecord {
 // ── Response envelopes ──────────────────────────────────────────────────────
 // Each is keyed by the path that returns it, so a reader can go from a URL in
 // devtools to the type without searching.
-
-export interface ToursResponse {
-  agency: CrmAgency;
-  tours: readonly TourSummary[];
-}
-
-export type TourResponse = TourDetail;
-
-export interface TravellersResponse {
-  travellers: readonly TravellerRecord[];
-}
-
-export interface StaffResponse {
-  staff: readonly StaffRecord[];
-}
 
 // ── Kaafil route payloads ───────────────────────────────────────────────────
 
