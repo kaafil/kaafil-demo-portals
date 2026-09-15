@@ -29,7 +29,7 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
   }, [travellers, query]);
 
   // Filter first, then paginate — see trip-table for why the other order bites.
-  const paged = usePaginated(filtered);
+  const paged = usePaginated(filtered, { resetKey: query });
   const visible = paged.rows;
 
   return (

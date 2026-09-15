@@ -44,7 +44,7 @@ export function TripTable({ tours }: { tours: readonly TourSummary[] }) {
   // Filter first, then paginate. The other order would page through the whole
   // list and then filter one page of it, which is how a search that "finds
   // nothing" on page 3 happens.
-  const paged = usePaginated(filtered);
+  const paged = usePaginated(filtered, { resetKey: `${query}|${status}|${region}` });
   const rows = paged.rows;
 
   const selectClass =
