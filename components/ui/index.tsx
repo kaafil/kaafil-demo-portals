@@ -107,7 +107,7 @@ export function PageHead({
   return (
     <header className="mb-4 flex items-end justify-between gap-4 border-b border-border-faint pb-3">
       <div>
-        <h1 className="m-0 text-xl leading-tight font-semibold text-ink">{title}</h1>
+        <h1 className="text-xl font-semibold text-ink">{title}</h1>
         {subtitle !== undefined && <p className="mt-1 mb-0 text-sm text-ink-faint">{subtitle}</p>}
       </div>
       {actions !== undefined && <div className="flex shrink-0 gap-2">{actions}</div>}
@@ -168,7 +168,7 @@ export function EmptyRow({ colSpan, children }: { colSpan: number; children: Rea
 export function Table({ head, children }: { head: ReactNode; children: ReactNode }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-base">
+      <table className="data-table w-full border-collapse text-base">
         <thead className="bg-surface-alt">{head}</thead>
         <tbody>{children}</tbody>
       </table>
@@ -177,5 +177,5 @@ export function Table({ head, children }: { head: ReactNode; children: ReactNode
 }
 
 export const TH =
-  'border-b border-border px-3 py-1.5 text-left text-xs uppercase tracking-wide text-ink-soft font-semibold whitespace-nowrap';
-export const TD = 'border-b border-border-faint px-3 py-1.5 align-top';
+  'border-b border-border text-left text-xs uppercase tracking-wide text-ink-soft font-semibold whitespace-nowrap';
+export const TD = 'border-b border-border-faint align-top';

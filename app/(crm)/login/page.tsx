@@ -26,7 +26,7 @@ export default async function LoginPage({
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
       <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-        <h1 className="m-0 text-2xl leading-tight font-semibold text-ink">{BRAND.productName}</h1>
+        <h1 className="text-2xl font-semibold text-ink">{BRAND.productName}</h1>
         <p className="mt-1 mb-5 text-md text-ink-faint">{BRAND.tagline}</p>
 
         {error === 'unknown-staff' && (
