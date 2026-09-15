@@ -61,19 +61,31 @@ export interface Brand {
  * Indian names, GSTINs, E.164 phones and Devanagari-adjacent place names.
  */
 export const BRAND: Brand = {
-  productName: 'Sharma Travels Admin',
-  companyName: 'Sharma Travels Pvt. Ltd.',
-  shortName: 'STPL',
+  productName: 'Travyan',
+  companyName: 'Travyan',
+  shortName: 'Travyan',
   logoPath: '/brand/logo.svg',
-  tagline: 'Back office — departures, manifests and collections.',
+  tagline: 'Travel CRM — queries, bookings and trips in one place.',
 
+  /**
+   * Travyan's own words, taken from their console's nav and screens.
+   *
+   * Two of these matter more than they look. They say **trip**, which happens
+   * to be Kaafil's word too — so the embedded surface and the host agree
+   * without translation, which is a small piece of luck worth noticing.
+   *
+   * And they say **customer** where this fixture says traveller: their manifest
+   * is headed "Customer Manifest" while its column is "Traveller Name". Both
+   * are in their product, so both are here — `traveller` for a person on a
+   * manifest, which is the sense this CRM uses it in.
+   */
   vocabulary: {
-    tour: 'departure',
-    tourPlural: 'departures',
-    leader: 'tour leader',
-    leaderPlural: 'tour leaders',
-    desk: 'desk executive',
-    deskPlural: 'desk executives',
+    tour: 'trip',
+    tourPlural: 'trips',
+    leader: 'trip manager',
+    leaderPlural: 'trip managers',
+    desk: 'agent',
+    deskPlural: 'agents',
     traveller: 'traveller',
     travellerPlural: 'travellers',
     booking: 'booking',

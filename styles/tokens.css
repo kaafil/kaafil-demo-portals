@@ -1,4 +1,31 @@
 /**
+ * TRAVYAN SKIN — the same file as `main`, with different values.
+ *
+ * Nothing about the STRUCTURE below changed from `main`: same tokens, same
+ * categories, same comments. Only the right-hand side moved. That is the
+ * claim this branch exists to test, and if a future branch has to add a token
+ * or edit a component, that is a gap in `main` to be fixed on `main`.
+ *
+ * Values are taken from Travyan's own stylesheet, not from a screenshot.
+ * Travyan is a shadcn/Tailwind app with HSL tokens, converted here to hex:
+ *
+ *   --primary: 18 99% 66%        -> #fe8652   the orange
+ *   --accent: 27 100% 92%        -> #ffe9d6   the pale tint behind active nav
+ *   --background: 0 0% 98%       -> #fafafa
+ *   --foreground: 0 0% 10%       -> #1a1a1a
+ *   --border: 0 0% 90%           -> #e6e6e6
+ *   --sidebar-background: 0 0%100% -> white   (NOT the accent — see chrome)
+ *   --sidebar-foreground: 0 0% 32% -> #525252
+ *   --radius: .5rem              -> 8px
+ *   Inter for everything.
+ *
+ * The chrome block is where this skin differs most from `main`: Travyan's
+ * sidebar and top bar are white with a hairline, and the active nav row is a
+ * pale peach fill with NO leading marker — hence
+ * `--nav-active-marker: transparent` rather than a deleted element.
+ *
+ * ── ORIGINAL HEADER FOLLOWS ────────────────────────────────────────────────
+ *
  * The host CRM's design system. ONE `:root` block, and nothing anywhere else
  * in this repo hardcodes a colour, a radius, a shadow or a chrome dimension.
  *
@@ -33,30 +60,30 @@
   /* ── Canvas / surface ramp ──────────────────────────────────────────────
      Three steps, and they are different things: the page behind everything,
      the card that sits on it, and the recessed well inside the card. */
-  --canvas: #eef0f2;
+  --canvas: #f5f5f5;
   --surface: #ffffff;
-  --surface-alt: #f6f7f8;
-  --surface-sunken: #e9ebee;
-  --zebra: #f8f9fa;
+  --surface-alt: #fafafa;
+  --surface-sunken: #f0f0f0;
+  --zebra: #fafafa;
 
   /* ── Text ramp ──────────────────────────────────────────────────────────
      Four steps including a disabled one. `--ink-faint` is for metadata that
      should be legible but never compete; `--ink-disabled` means inoperable
      and is the only one allowed to fail a contrast check. */
-  --ink: #1c2126;
-  --ink-soft: #4d5661;
-  --ink-faint: #79838f;
-  --ink-disabled: #a8b0b8;
+  --ink: #1a1a1a;
+  --ink-soft: #525252;
+  --ink-faint: #737373;
+  --ink-disabled: #a3a3a3;
   --ink-invert: #ffffff;
 
   /* ── Borders ────────────────────────────────────────────────────────────
      Two weights plus a distinct hover WASH. The wash is its own colour, never
      the border colour at reduced opacity: opacity composites against whatever
      is behind it, so a "subtle" border goes muddy over a zebra row. */
-  --border: #cdd3d9;
-  --border-strong: #9aa3ad;
-  --border-faint: #e2e6ea;
-  --hover-wash: #f0f3f6;
+  --border: #e6e6e6;
+  --border-strong: #d4d4d4;
+  --border-faint: #f0f0f0;
+  --hover-wash: #fafafa;
 
   /* ── Accent ─────────────────────────────────────────────────────────────
      ONE accent, and the restraint rule that comes with it: it belongs to the
@@ -66,9 +93,9 @@
 
      `main`'s accent is a muted slate-blue on purpose — present enough to see
      the system working, bland enough that nobody mistakes it for a design. */
-  --accent: #40566e;
-  --accent-hover: #334659;
-  --accent-soft: #e4e9ef;
+  --accent: #fe8652;
+  --accent-hover: #f4692f;
+  --accent-soft: #ffe9d6;
   --accent-ink: #ffffff;
 
   /* ── Status ─────────────────────────────────────────────────────────────
@@ -83,9 +110,9 @@
   --warning-bg: #f7edd8;
   --warning-border: #e2cf9f;
 
-  --danger: #8f2020;
-  --danger-bg: #f6e2e2;
-  --danger-border: #e0b9b9;
+  --danger: #ef4343;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
 
   --info: #1c5566;
   --info-bg: #dfeef2;
@@ -99,8 +126,8 @@
      A small explicit step scale. `--radius-control` is the one the Kaafil
      bridge reads, so it is the one that decides whether the embedded surface
      looks like it belongs. */
-  --radius-control: 3px;
-  --radius-card: 4px;
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
   --radius-pill: 999px;
 
   /* ── Elevation ──────────────────────────────────────────────────────────
@@ -119,7 +146,7 @@
      `--font-mono` is not decorative. Every id, reference and money figure in
      this product renders in it, because a column of tabular figures that
      doesn't line up is a column you cannot scan. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --text-xs: 0.6875rem;
@@ -164,26 +191,26 @@
      the surface and loses nothing. This is the general lesson and it is worth
      stating: a token that a component consumes should name the ROLE (the
      top bar's background) and not the source (the accent). */
-  --sidebar-width: 15rem;
-  --topbar-height: 3.25rem;
-  --row-height: 2rem;
+  --sidebar-width: 10.5rem;
+  --topbar-height: 4rem;
+  --row-height: 2.75rem;
   --tabbar-height: 3.5rem;
 
-  --topbar-bg: var(--accent);
-  --topbar-ink: var(--accent-ink);
-  --topbar-border: transparent;
+  --topbar-bg: var(--surface);
+  --topbar-ink: var(--ink);
+  --topbar-border: var(--border-faint);
 
   --sidebar-bg: var(--surface);
-  --sidebar-ink: var(--ink-soft);
-  --sidebar-border: var(--border);
+  --sidebar-ink: #525252;
+  --sidebar-border: #f5f5f5;
 
   /* The active nav row. `--nav-active-marker` is the leading edge rule; a
      branch that wants no marker sets it to `transparent` rather than deleting
      an element. */
   --nav-active-bg: var(--accent-soft);
   --nav-active-ink: var(--ink);
-  --nav-active-marker: var(--accent);
-  --nav-hover-bg: var(--hover-wash);
+  --nav-active-marker: transparent;
+  --nav-hover-bg: #fafafa;
 
   /* ── Target size ────────────────────────────────────────────────────────
      A real token, not a convention each component has to remember. `--target-
@@ -216,7 +243,7 @@
   /* ── Focus ──────────────────────────────────────────────────────────────
      Its own token, never "the accent". A branch may need a focus ring that
      survives against their accent, and that is a separate decision. */
-  --ring: #2f6fb5;
+  --ring: #fe8652;
   --ring-width: 2px;
 }
 

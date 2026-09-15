@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { BRAND } from '@/config/brand';
 import './globals.css';
@@ -15,8 +16,20 @@ import './globals.css';
  *
  * A client branch that needs a specific typeface adds its `next/font` import
  * here and points `--font-sans` at it in `styles/tokens.css`. That is the only
- * reason to touch this file.
+ * reason to touch this file, and this branch is that case: Travyan's console
+ * is Inter throughout.
+ *
+ * `variable` rather than `className` so the font arrives as a CSS custom
+ * property that `styles/tokens.css` can name in its own `--font-sans` stack —
+ * which keeps the typeface decision in the token file with every other one,
+ * instead of splitting it across two places.
  */
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: { default: BRAND.productName, template: `%s · ${BRAND.shortName}` },
@@ -31,7 +44,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-IN">
+    <html lang="en-IN" className={inter.variable}>
       <body>{children}</body>
     </html>
   );
