@@ -80,6 +80,7 @@ holds nothing real.
 | `pnpm seed:kaafil` | push into your Kaafil tenant. Idempotent, rate-limited |
 | `pnpm seed:kaafil -- --enrich-only` | skip the 7-step push, redo just the depth pass |
 | `pnpm seed:kaafil -- --shallow` | push trips only; no itineraries, rooming or checklists |
+| `pnpm build:sw` | bundle the service worker (runs inside `pnpm build`) |
 | `pnpm typecheck` / `pnpm lint` | tsc / Biome |
 | `pnpm audit:tokens` | fail if a token is declared and nothing reads it |
 
@@ -176,7 +177,10 @@ client's language in one object instead of one grep.
 - [x] **Phase 3** — all three surfaces mounted and live, plus the depth pass
       that fills them (106 itinerary items, 61 rooms, 104 travellers roomed,
       126 checklist items)
-- [ ] **Phase 4** — the manager PWA and the offline outbox
+- [x] **Phase 4** — the manager PWA and the offline outbox. Verified end to
+      end: server killed, `/m` still boots from the cached shell and the cached
+      credential; a write made with the network cut queues in the outbox and
+      drains on reconnect
 - [x] **Phase 5 (early)** — `client/travyan`, proving the re-skin path
 
 Phase 5 ran ahead of 3 and 4 on purpose: re-skinning is the claim the whole
@@ -218,6 +222,21 @@ Surfaces handle it; `TripWorkspace` does not. The failure is nasty: the child
 throws, the boundary swallows it, the subtree unmounts, and the effect that
 would have opened the session never runs — so the network tab shows *no
 request at all*, which reads like a broken credential rather than a race.
+
+**Offline needs a production build.** The precache list is read off
+`.next/static`, which only exists after `next build` — so `pnpm build && pnpm
+start`, not `pnpm dev`. Dev precaches the shell alone, because dev chunks are
+generated on demand and renamed constantly.
+
+**Scope the worker to `/m`, not `/m/`.** Scope is a prefix match: `/m/` controls
+`/m/login` and not `/m`, which is the route the whole offline story is about.
+Ours registered, activated, precached the shell, reported a healthy scope and
+did not control its own root.
+
+**`installKaafilOfflineShell` owns every non-API GET.** Its network fallback
+never writes to the cache, so anything absent from `precache` is never
+available offline — and a second `fetch` listener adding host rules is dead
+code, because the kit has already responded.
 
 **The depth pass is not made of upserts.** `itinerary.items.add` appends, room
 codes are unique per stay window, checklist keys unique per section. `enrich.ts`
