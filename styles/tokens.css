@@ -191,10 +191,23 @@
      the surface and loses nothing. This is the general lesson and it is worth
      stating: a token that a component consumes should name the ROLE (the
      top bar's background) and not the source (the accent). */
-  --sidebar-width: 10.5rem;
+  --sidebar-width: 12rem;
   --topbar-height: 4rem;
-  --row-height: 2.75rem;
   --tabbar-height: 3.5rem;
+
+  /* Table density.
+
+     `--row-height` is a MINIMUM — a row whose content needs two lines still
+     grows, which is why the cell padding below is the knob that actually
+     changes how a table feels. Setting only the row height on a table whose
+     rows are already content-sized does nothing, and a branch that tried it
+     would reasonably conclude the token system was decorative.
+
+     Travyan's console is noticeably airier than `main`: taller rows, more air
+     in every cell. */
+  --row-height: 3.25rem;
+  --cell-padding-y: 0.75rem;
+  --cell-padding-x: 1rem;
 
   --topbar-bg: var(--surface);
   --topbar-ink: var(--ink);

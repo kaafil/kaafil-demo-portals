@@ -24,7 +24,7 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
 
   return (
     <main className="mx-auto max-w-lg px-4 py-8">
-      <h1 className="m-0 text-2xl leading-tight font-semibold text-ink">Your trip</h1>
+      <h1 className="text-2xl font-semibold text-ink">Your trip</h1>
       <p className="mt-2 text-md text-ink-soft">
         This page is not wired up yet. <code className="tabular">KaafilShareView</code> from{' '}
         <code className="tabular">kaafil-react-uikit/traveller</code> mounts here.
