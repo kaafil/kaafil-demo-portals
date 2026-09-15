@@ -1,5 +1,4 @@
 import type { Route } from 'next';
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { signOut } from '@/app/_actions/auth';
 import { BRAND, titleCase } from '@/config/brand';
@@ -53,12 +52,7 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
         className="sticky top-0 flex items-center justify-between gap-4 border-b border-topbar-border bg-topbar-bg px-4 text-topbar-ink"
         style={{ height: 'var(--topbar-height)', zIndex: 'var(--z-sticky)' }}
       >
-        <Link
-          href="/admin/trips"
-          className="font-semibold tracking-wide text-topbar-ink no-underline"
-        >
-          {BRAND.productName}
-        </Link>
+        <Wordmark href="/admin/trips" />
         <div className="flex items-center gap-3 text-sm">
           <span className="opacity-90">
             {staff.fullName} · {staff.staffCode}
