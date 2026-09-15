@@ -97,7 +97,7 @@ fixtures changed, not because you restarted.
 ```
 app/
   (crm)/        the desk portal. Its own screens + one Kaafil section
-  (manager)/    the field app. Own manifest, own shell, own cookie
+  (manager)/    the field app. Own (generated) manifest, own shell, own cookie
   (share)/      the public traveller page. No gate, no chrome
   api/          the 3 routes that hold the key, plus health
 components/
@@ -144,6 +144,15 @@ hit it four times: the skin needed a logo image (`Wordmark`), nav icons
 (`NavIcon`), a sidebar identity block, and five spacing tokens that did not
 exist yet. Each was added to `main` rather than to the branch, so every branch
 after the first gets them without asking.
+
+The **web manifest is not on that list, and must not be added to it.**
+`app/manifest.ts` derives the installed app's name, description and colours
+from `config/brand.ts` and `styles/tokens.css`, so a branch gets a correct one
+by editing the two files it was already editing. There used to be a
+`public/manifest.webmanifest` naming one operator, and because it sat outside
+this table nobody had a reason to open it — so every branch shipped an
+installed app called "STPL Field" in somebody else's colours. Do not re-add the
+file out of helpfulness.
 
 ### `styles/tokens.css` conflicts on every merge, and that is fine
 
