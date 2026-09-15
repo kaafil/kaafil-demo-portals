@@ -36,19 +36,41 @@ export interface Paginated<T> {
  * own volumes rather than inherit ours, which is why the boundary is written
  * down here instead of being implied.
  *
- * ── THE RESET THAT IS EASY TO FORGET ───────────────────────────────────────
+ * ── TWO DIFFERENT WAYS THE PAGE GOES STALE ─────────────────────────────────
  *
- * When a filter shrinks the list, the current page can fall off the end, and a
- * table that renders an empty page 6 of 2 looks broken rather than filtered.
- * The effect below clamps back into range whenever the row count changes.
+ * They look alike and want opposite answers.
+ *
+ * 1. The list shrank under you and the current page no longer exists. An empty
+ *    "page 6 of 2" reads as broken rather than filtered, so the effect below
+ *    CLAMPS into range. This is the safety net, and it should rarely fire.
+ *
+ * 2. The user changed the filter. Clamping is wrong here: searching from page
+ *    30 and landing on the last page of the new results is technically valid
+ *    and reliably confusing — what somebody wants after a search is the TOP of
+ *    what they just found. So a caller passes `resetKey` holding whatever its
+ *    filter state is, and any change to it RESETS to page one.
+ *
+ * Without `resetKey` only the clamp applies, which is the safe default but
+ * leaves case 2 feeling wrong. Both call sites in this repo pass it.
  */
-export function usePaginated<T>(all: readonly T[], initialSize: PageSize = 25): Paginated<T> {
+export function usePaginated<T>(
+  all: readonly T[],
+  options: { initialSize?: PageSize; resetKey?: string } = {},
+): Paginated<T> {
+  const { initialSize = 25, resetKey } = options;
   const [page, setPage] = useState(1);
   const [pageSize, setPageSizeRaw] = useState<PageSize>(initialSize);
 
   const total = all.length;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
+  // Case 2: the filter moved. Back to the top of the new result set.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: resetting ON the key changing is the point
+  useEffect(() => {
+    setPage(1);
+  }, [resetKey]);
+
+  // Case 1: the safety net.
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
   }, [page, pageCount]);
