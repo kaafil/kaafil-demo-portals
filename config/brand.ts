@@ -69,7 +69,7 @@ export const BRAND: Brand = {
   productName: 'Travyan',
   companyName: 'Travyan',
   shortName: 'Travyan',
-  logoPath: '/brand/logo.svg',
+  logoPath: '/brand/logo.png',
   tagline: 'Travel CRM — queries, bookings and trips in one place.',
 
   /**
