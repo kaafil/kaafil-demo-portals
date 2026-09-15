@@ -11,7 +11,6 @@ import { signOut } from '@/app/_actions/auth';
 import { BRAND } from '@/config/brand';
 import { hostBrand } from './brand';
 import { managerCredential } from './credential';
-import { WhenSessionReady } from './session-gate';
 
 /**
  * The field surface: Kaafil's manager app, filling the `/m` portal.
@@ -165,19 +164,17 @@ export default function ManagerAppInner({ managerRef }: { managerRef: string }) 
         brand={hostBrand(`${BRAND.shortName} Field`)}
         onSessionExpired={() => router.push('/m/login')}
       >
-        <WhenSessionReady label="your trips">
-          <KaafilManagerApp
-            onLogExpense={() => host('expense')}
-            onCollectPayment={() => host('collect')}
-            onCollectFromGroup={(groupId) => host('collect', groupId)}
-            onVendorSelect={(tripVendorId) => host('vendor', tripVendorId)}
-            // The CRM's own sign-out, not a route of its own. The kit has no
-            // session-teardown method to call first — supplying this prop is
-            // what makes the affordance appear at all, and what it does is
-            // entirely ours.
-            onSignOut={() => void signOut('manager')}
-          />
-        </WhenSessionReady>
+        <KaafilManagerApp
+          onLogExpense={() => host('expense')}
+          onCollectPayment={() => host('collect')}
+          onCollectFromGroup={(groupId) => host('collect', groupId)}
+          onVendorSelect={(tripVendorId) => host('vendor', tripVendorId)}
+          // The CRM's own sign-out, not a route of its own. The kit has no
+          // session-teardown method to call first — supplying this prop is
+          // what makes the affordance appear at all, and what it does is
+          // entirely ours.
+          onSignOut={() => void signOut('manager')}
+        />
       </KaafilUIKitProvider>
     </>
   );

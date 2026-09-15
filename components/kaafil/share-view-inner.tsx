@@ -3,7 +3,6 @@
 import { KaafilUIKitProvider } from 'kaafil-react-uikit/core';
 import { KaafilShareView } from 'kaafil-react-uikit/traveller';
 import { shareBrand } from './brand';
-import { WhenSessionReady } from './session-gate';
 
 /**
  * The traveller surface: a share link, opened by somebody with no account.
@@ -38,9 +37,7 @@ import { WhenSessionReady } from './session-gate';
 export default function ShareViewInner({ token }: { token: string }) {
   return (
     <KaafilUIKitProvider shareToken={token} locale="en-IN" brand={shareBrand()}>
-      <WhenSessionReady label="your trip">
-        <KaafilShareView token={token} headStrategy="own-page" />
-      </WhenSessionReady>
+      <KaafilShareView token={token} headStrategy="own-page" />
     </KaafilUIKitProvider>
   );
 }

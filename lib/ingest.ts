@@ -214,7 +214,10 @@ const LOCALE: Record<string, string> = {
 export function zonedInstant(
   date: IsoDate,
   timeZone: string,
-  clockTime: '00:00:00' | '23:59:59',
+  // A closed set, not a free string: the point of this helper is that a caller
+  // cannot quietly invent a wall-clock time. The three are the ones the fixture
+  // actually needs — day start, day end, and the 06:00 a pickup stop assembles at.
+  clockTime: '00:00:00' | '06:00:00' | '23:59:59',
 ): string {
   const probe = new Date(`${date}T12:00:00Z`);
   const parts = new Intl.DateTimeFormat('en-US', {

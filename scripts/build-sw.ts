@@ -13,43 +13,29 @@
  * Next does not build service workers, and that is reasonable: a worker is not
  * part of the app graph.
  *
- * ── WHY IT READS `.next/static` ────────────────────────────────────────────
+ * ── WHY THE PRECACHE LIST IS SHORT ─────────────────────────────────────────
  *
- * The kit's fetch handler never writes to the cache — its network fallback
- * responds without caching. So anything absent from `precache` is simply not
- * available offline, which makes this list the whole offline surface rather
- * than a warm-up optimisation.
+ * It used to walk `.next/static` and precache the entire build, because the
+ * kit's miss path returned the network's answer without storing it — so
+ * anything absent from `precache` was never available offline.
  *
- * Workbox users get this list from `self.__WB_MANIFEST`. Without Workbox, the
- * equivalent is to walk the build output, which is all this does.
+ * `kaafil-react-uikit@0.10.0` added `runtimeCache`, which caches successful
+ * same-origin responses as they are fetched. That is the right shape for Next:
+ * chunk hashes are decided at build time and there is no `__WB_MANIFEST` to
+ * read them from, so caching on demand beats enumerating a directory.
  *
- * ORDER MATTERS: run AFTER `next build`, or there is nothing to walk. `pnpm
- * build` sequences them. In dev there is no production build and the list is
- * just the shell — offline is a production behaviour, and `pnpm build && pnpm
- * start` is how to test it.
+ * What stays precached is what must be present on a COLD offline start, before
+ * anything has been fetched once: the shell, the sign-in page, the manifest
+ * and the brand assets.
+ *
+ * Offline is still a production behaviour — `pnpm build && pnpm start` is how
+ * to test it — because a dev build's chunks are renamed on every edit.
  */
 
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { build } from 'esbuild';
-
-const STATIC_DIR = '.next/static';
-
-/** Every emitted asset, as the URL the browser will ask for. */
-function walk(dir: string, out: string[] = []): string[] {
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      walk(full, out);
-    } else if (!entry.endsWith('.map')) {
-      // Source maps are for a human with devtools open, who by definition has
-      // a network. Precaching them doubles the install for no field benefit.
-      out.push(`/_next/static/${posix.relative(STATIC_DIR, full.split('\\').join('/'))}`);
-    }
-  }
-  return out;
-}
 
 /** Static assets under `public/`, as the URLs they are served at. */
 function walkPublic(dir: string, out: string[] = []): string[] {
@@ -61,14 +47,17 @@ function walkPublic(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-const hasBuild = existsSync(STATIC_DIR);
-
 /**
  * The shell first, then the build. `/m/login` is in here deliberately: a leader
  * whose session cached credential has expired lands on sign-in, and a sign-in
  * page that needs the network to render is a sign-in page they cannot reach.
  */
 const precache = [
+  // The shell and the handful of files that must be there on a COLD offline
+  // start, before anything has been fetched once. Everything else — Next's
+  // hashed chunks, the fonts — is cached at runtime by the kit's
+  // `runtimeCache`, which is why this list is short and hand-written again
+  // rather than walked out of `.next/static`.
   '/m',
   '/m/login',
   '/manifest.webmanifest',
@@ -79,7 +68,6 @@ const precache = [
   // drops in its own mark gets it cached without editing this file, which is
   // the same promise the rest of the branch workflow makes.
   ...(existsSync('public/brand') ? walkPublic('public/brand') : []),
-  ...(hasBuild ? walk(STATIC_DIR) : []),
 ];
 
 // Name the cache after its contents, so a new build is a new cache and the old
@@ -112,6 +100,5 @@ const result = await build({
 const out = result.metafile.outputs['public/sw.js'];
 console.log(
   `sw → public/sw.js (${out === undefined ? '?' : `${(out.bytes / 1024).toFixed(1)} kB`}), ` +
-    `cache ${cacheName}, ${precache.length} precached` +
-    (hasBuild ? '' : ' — no production build found, shell only (offline needs `pnpm build`)'),
+    `cache ${cacheName}, ${precache.length} precached (the rest is cached at runtime)`,
 );
