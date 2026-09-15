@@ -23,12 +23,31 @@ import { BRAND } from '@/config/brand';
  * it IS the whole document — so it passes `'own-page'` and lets the kit set the
  * head from the share token's own metadata.
  */
-export function hostBrand(appName: string = BRAND.productName) {
+export function hostBrand(
+  appName: string = BRAND.productName,
+  headStrategy: 'none' | 'own-page' = 'none',
+) {
   return {
     appName,
     ...(BRAND.logoPath === null ? {} : { logo: BRAND.logoPath, logoMark: BRAND.logoPath }),
-    headStrategy: 'none' as const,
+    headStrategy,
   };
+}
+
+/**
+ * The brand the traveller's share page wears.
+ *
+ * It was mounted without one at first, and the page came back blank where the
+ * operator's mark should be — which matters more here than anywhere else in
+ * the repo. The staff surfaces sit inside chrome that is already branded; this
+ * page IS the chrome. It is opened from a WhatsApp message by somebody who has
+ * never heard of the operator, let alone Kaafil, and an unbranded page gives
+ * them nothing to recognise or trust.
+ *
+ * `own-page` because this document is the kit's to own — see above.
+ */
+export function shareBrand() {
+  return hostBrand(BRAND.companyName, 'own-page');
 }
 
 /**

@@ -15,3 +15,6 @@ crm.sqlite-shm
 fixtures/bulk.generated.json
 
 .DS_Store
+
+# Bundled from sw/ by `pnpm build:sw`. Generated, never edited by hand.
+public/sw.js

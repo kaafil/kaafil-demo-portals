@@ -10,11 +10,12 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "dev": "pnpm run seed && next dev",
+    "dev": "pnpm run seed && pnpm run build:sw && next dev",
     "dev:only": "next dev",
-    "build": "next build",
+    "build": "next build && pnpm run build:sw",
     "start": "next start",
     "seed": "tsx scripts/seed.ts",
+    "build:sw": "tsx scripts/build-sw.ts",
     "seed:bulk": "tsx scripts/seed.ts --bulk",
     "seed:kaafil": "tsx --env-file=.env scripts/ingest.ts",
     "typecheck": "tsc --noEmit",
@@ -22,7 +23,7 @@
     "lint": "biome check .",
     "format": "biome check --write ."
   },
-  "comment:seed:kaafil": "Deliberately NOT part of `pnpm dev`. Pushing 56 departures into the tenant means 56 `journey.waitUntilReady` waits and a rate limit you will hit. Every call is an upsert, so running it twice is safe — but run it because fixtures changed, not because you restarted the dev server.",
+  "comment:seed:kaafil": "Deliberately NOT part of `pnpm dev`. Pushing 56 departures into the tenant means 56 `journey.waitUntilReady` waits and a rate limit you will hit. Every call is an upsert, so running it twice is safe \u2014 but run it because fixtures changed, not because you restarted the dev server.",
   "comment:secrets": "KAAFIL_API_KEY has no NEXT_PUBLIC_ prefix, so Next never inlines it. It is read by app/api/*/route.ts (server-only) and scripts/ingest.ts. lib/kaafil-server.ts carries `import 'server-only'` so a client component that imports it fails the build rather than shipping the key.",
   "dependencies": {
     "better-sqlite3": "^11.8.1",
@@ -41,6 +42,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "esbuild": "^0.28.2",
     "tailwindcss": "^4.1.0",
     "tsx": "^4.19.2",
     "typescript": "^5.9.2"

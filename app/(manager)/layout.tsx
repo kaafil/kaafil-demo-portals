@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { RegisterServiceWorker } from '@/components/kaafil/register-sw';
 import { BRAND } from '@/config/brand';
 
 /**
@@ -43,5 +44,17 @@ export const viewport: Viewport = {
 };
 
 export default function ManagerGroupLayout({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <>
+      {/*
+        Here rather than in `m/(app)` so the worker is registered on the SIGN-IN
+        screen too. A tour leader installs the app, signs in, and goes to a
+        valley — if registration waited for the authenticated tree, the shell
+        would be cached only after they were already past the one screen they
+        cannot get past without signal.
+      */}
+      <RegisterServiceWorker />
+      {children}
+    </>
+  );
 }

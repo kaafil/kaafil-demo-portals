@@ -69,7 +69,29 @@ export interface EnrichResult {
   readonly rooms: number;
   readonly roomingAssigned: number;
   readonly checklistItems: number;
+  readonly floatsIssued: number;
   readonly failures: readonly IngestFailure[];
+}
+
+/**
+ * What a lead manager is handed for a departure, in paise.
+ *
+ * Found the hard way. An expense logged from the field came back `422
+ * BUSINESS_RULE_VIOLATION` and the outbox PARKED it — correctly, because the
+ * form's default payment source is `FLOAT_CASH` and you cannot spend from a
+ * float that was never issued. Every Money screen in the demo was therefore a
+ * dead end, and the failure was invisible until somebody actually tried to log
+ * something.
+ *
+ * The figure is a rule rather than a constant so it scales with the trip: a
+ * per-head allowance for meals and entries, plus a per-day one for fuel,
+ * parking and the things a leader pays cash for. Round numbers, because a real
+ * desk hands over round numbers.
+ */
+function floatForTour(pax: number, days: number): number {
+  const perTraveller = 1_000_00; // ₹1,000
+  const perDay = 500_00; // ₹500
+  return pax * perTraveller + days * perDay;
 }
 
 /**
@@ -198,9 +220,10 @@ export async function enrichTrips(
   let rooms = 0;
   let roomingAssigned = 0;
   let checklistItems = 0;
+  let floatsIssued = 0;
 
   log(
-    `8/10 Itineraries. Pushing the brochure day plan for ${tours.length} departures. This is ` +
+    `8/11 Itineraries. Pushing the brochure day plan for ${tours.length} departures. This is ` +
       `the CRM's own itinerary, not invented — it was in the fixture all along and ingest ` +
       `simply never sent it.`,
   );
@@ -295,7 +318,7 @@ export async function enrichTrips(
   }
 
   log(
-    `9/10 Rooming. One stay window per departure, twin rooms enough for the manifest, then ` +
+    `9/11 Rooming. One stay window per departure, twin rooms enough for the manifest, then ` +
       `Kaafil's own auto-assign. The solver is what decides who shares with whom — this only ` +
       `gives it rooms to work with.`,
   );
@@ -371,7 +394,7 @@ export async function enrichTrips(
   }
 
   log(
-    `10/10 Checklists. The things that have to happen before a bus leaves, while it is out, ` +
+    `10/11 Checklists. The things that have to happen before a bus leaves, while it is out, ` +
       `and once it is back. Mandatory items are the ones that block a close-out, so they are ` +
       `the ones an operator genuinely should not be able to skip.`,
   );
@@ -416,6 +439,50 @@ export async function enrichTrips(
     );
   }
 
+  log(
+    `11/11 Float. The cash a lead manager is carrying. Without it the Money tab ` +
+      `is a dead end: the expense form defaults to FLOAT_CASH, and spending from a float ` +
+      `that was never issued is refused — which the outbox parks, correctly and invisibly.`,
+  );
+  for (const tour of tours) {
+    try {
+      // `readSummary` first: issuing is a MOVEMENT, not an upsert, so running
+      // this twice would hand the same leader a second float rather than
+      // refusing. The ledger is append-only by design and it is the caller's
+      // job not to double-count.
+      const summary = await kaafil.float.readSummary({ tripRef: tour.tourId });
+      if (summary.data.length > 0) {
+        log(`    ${tour.tourId}: float already issued.`);
+        continue;
+      }
+
+      const managers = await kaafil.trips.managers.list({ tripRef: tour.tourId });
+      const lead = managers.find((row) => row.isLead) ?? managers[0];
+      if (lead === undefined) {
+        log(`    ${tour.tourId}: nobody rostered, so nobody to hand a float to.`);
+        continue;
+      }
+
+      const pax = fixture.travellers.filter((t) => t.tourId === tour.tourId).length;
+      const amountMinor = floatForTour(pax, tour.itinerary.length);
+
+      await kaafil.float.issue({
+        tripRef: tour.tourId,
+        // The engine's OWN manager id, not our `managerRef`. The list returns
+        // both side by side, which is the only reason this is not a bug.
+        managerId: lead.managerId,
+        amountMinor,
+        note: `Trip float for ${tour.title}`,
+      });
+      floatsIssued++;
+      log(
+        `    ${tour.tourId}: ₹${(amountMinor / 100).toLocaleString('en-IN')} to ${lead.fullName}.`,
+      );
+    } catch (error) {
+      failures.push(toFailure('float.issue', tour.tourId, error));
+    }
+  }
+
   if (failures.length > 0) {
     const codes = new Map<string, number>();
     for (const f of failures) codes.set(f.code, (codes.get(f.code) ?? 0) + 1);
@@ -426,7 +493,7 @@ export async function enrichTrips(
     );
   }
 
-  return { itineraryItems, rooms, roomingAssigned, checklistItems, failures };
+  return { itineraryItems, rooms, roomingAssigned, checklistItems, floatsIssued, failures };
 }
 
 /** Re-exported so the CLI does not have to import from two places. */
