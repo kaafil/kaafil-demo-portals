@@ -14,25 +14,23 @@
  * `installKaafilOfflineShell` is the seam between them, and it is the only
  * thing here that came out of the box.
  *
- * ── THE KIT OWNS EVERY NON-API GET. PLAN AROUND IT. ────────────────────────
+ * ── THE KIT OWNS EVERY NON-API GET ─────────────────────────────────────────
  *
- * This took a wrong turn first, so it is worth stating plainly. The kit's
- * `fetch` handler calls `respondWith` for EVERY GET that is not an API call:
- * navigations go network-first with the shell as fallback, and everything else
- * is cache-first with a network fallback that does NOT write back.
+ * Its `fetch` handler answers every GET that is not an API call and not
+ * declined by `isHostOwned`. A second `fetch` listener adding host rules is
+ * therefore dead code — the first `respondWith` wins, and the kit has already
+ * responded. We wrote one before learning that; it never ran.
  *
- * Two consequences, both load-bearing:
+ * `runtimeCache` is what replaced it. Without it, anything absent from
+ * `precache` is never available offline, because the miss path returns the
+ * network's answer without storing it. With it, Next's content-hashed chunks
+ * are cached as they are fetched — which is what a Next app needs, since those
+ * filenames are only decided at build time and there is no `__WB_MANIFEST` to
+ * enumerate them.
  *
- * 1. A second `fetch` listener adding host rules is dead code. The kit has
- *    already responded; yours never runs. (The docs say it "calls respondWith
- *    only for requests it actually owns" — it turns out it owns nearly all of
- *    them.)
- * 2. Because the network fallback never populates the cache, anything not in
- *    `precache` is never available offline. `precache` is not an optimisation
- *    here; it is the entire offline surface.
- *
- * So the precache list is generated from the real build — see
- * `scripts/build-sw.ts`.
+ * The honest consequence, unchanged: the app must be opened ONCE with signal
+ * before it works without. That is true of every PWA and is better said out
+ * loud than discovered in a valley.
  *
  * ── THE ONE OPTION THAT MUST NOT BE WRONG ──────────────────────────────────
  *
@@ -81,6 +79,11 @@ installKaafilOfflineShell({
   isApiRequest: (url) =>
     (url.origin === self.location.origin && url.pathname.startsWith('/api/')) ||
     url.hostname.endsWith('kaafil.in'),
+  // Next decides its chunk hashes at build time and ships no Workbox manifest,
+  // so they cannot be precached from a worker source. Caching them as they are
+  // requested is the supported answer, and it is why this file no longer needs
+  // a generated list of the whole build.
+  runtimeCache: true,
 });
 
 /** Take over open tabs on the next load rather than waiting for every one to close. */

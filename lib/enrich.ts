@@ -70,6 +70,8 @@ export interface EnrichResult {
   readonly roomingAssigned: number;
   readonly checklistItems: number;
   readonly floatsIssued: number;
+  readonly pickupStops: number;
+  readonly balancesPushed: number;
   readonly failures: readonly IngestFailure[];
 }
 
@@ -221,9 +223,11 @@ export async function enrichTrips(
   let roomingAssigned = 0;
   let checklistItems = 0;
   let floatsIssued = 0;
+  let pickupStops = 0;
+  let balancesPushed = 0;
 
   log(
-    `8/11 Itineraries. Pushing the brochure day plan for ${tours.length} departures. This is ` +
+    `8/13 Itineraries. Pushing the brochure day plan for ${tours.length} departures. This is ` +
       `the CRM's own itinerary, not invented — it was in the fixture all along and ingest ` +
       `simply never sent it.`,
   );
@@ -318,7 +322,7 @@ export async function enrichTrips(
   }
 
   log(
-    `9/11 Rooming. One stay window per departure, twin rooms enough for the manifest, then ` +
+    `9/13 Rooming. One stay window per departure, twin rooms enough for the manifest, then ` +
       `Kaafil's own auto-assign. The solver is what decides who shares with whom — this only ` +
       `gives it rooms to work with.`,
   );
@@ -394,7 +398,7 @@ export async function enrichTrips(
   }
 
   log(
-    `10/11 Checklists. The things that have to happen before a bus leaves, while it is out, ` +
+    `10/13 Checklists. The things that have to happen before a bus leaves, while it is out, ` +
       `and once it is back. Mandatory items are the ones that block a close-out, so they are ` +
       `the ones an operator genuinely should not be able to skip.`,
   );
@@ -440,7 +444,7 @@ export async function enrichTrips(
   }
 
   log(
-    `11/11 Float. The cash a lead manager is carrying. Without it the Money tab ` +
+    `11/13 Float. The cash a lead manager is carrying. Without it the Money tab ` +
       `is a dead end: the expense form defaults to FLOAT_CASH, and spending from a float ` +
       `that was never issued is refused — which the outbox parks, correctly and invisibly.`,
   );
@@ -483,6 +487,121 @@ export async function enrichTrips(
     }
   }
 
+  log(
+    `12/13 Pickups. One stop per departure, from the CRM's own boarding city and meeting ` +
+      `point — real data, not invented: "Leh / Kushok Bakula Rimpochee Airport, arrivals gate" ` +
+      `is what the fixture has always said.`,
+  );
+  for (const tour of tours) {
+    try {
+      const existing = live(await kaafil.pickups.list({ tripRef: tour.tourId }));
+      let stopId = existing[0]?.id;
+
+      if (stopId === undefined) {
+        const created = await kaafil.pickups.create({
+          tripRef: tour.tourId,
+          kind: 'PICKUP',
+          name: tour.boardingCity,
+          locationLabel: tour.meetingPoint,
+          // 6 a.m. on day one, in the trip's own timezone. A departure assembles
+          // early, and the hour is the single most-asked question on the morning
+          // of day one — a stop with no time on it is a stop nobody trusts.
+          scheduledTime: zonedInstant(tour.startDate, tour.timezone, '06:00:00'),
+        });
+        stopId = created.id;
+        pickupStops++;
+        log(`    ${tour.tourId}: ${tour.boardingCity} — ${tour.meetingPoint}.`);
+      }
+
+      // Assign everyone who is not already on a stop. `manifestByPickup` is the
+      // read that names them, so this reconciles the same way every other step
+      // does: a second run finds `unassignedTravellers` empty and writes nothing.
+      const manifest = await kaafil.pickups.manifestByPickup({
+        tripRef: tour.tourId,
+        kind: 'PICKUP',
+      });
+      for (const traveller of manifest.unassignedTravellers) {
+        try {
+          await kaafil.pickups.assign({
+            tripRef: tour.tourId,
+            pointId: stopId,
+            travellerId: traveller.travellerId,
+          });
+        } catch (error) {
+          failures.push(toFailure('pickups.assign', traveller.travellerId, error));
+        }
+      }
+      if (manifest.unassignedTravellers.length > 0) {
+        log(`    ${tour.tourId}: ${manifest.unassignedTravellers.length} travellers on the stop.`);
+      }
+    } catch (error) {
+      failures.push(toFailure('pickups', tour.tourId, error));
+    }
+  }
+
+  log(
+    `13/13 Balances. What each traveller still owes, straight from the CRM's bookings and ` +
+      `receipts. This is the one number the desk and the field must agree on, and it is the ` +
+      `CRM's to state — Kaafil never sells anything, so it can only be told.`,
+  );
+  // NOT `bookings.bulkUpsert`. Kaafil's "booking" is a SUPPLIER booking — a hotel
+  // or flight with a confirmation ref and a voucher file. Sharma Travels' 342
+  // bookings are SALES bookings, and the CRM holds no supplier record at all, so
+  // pushing them there would mean inventing hotel names to fill a tab. Their real
+  // home is the balance ledger below, which is what a sales booking actually is
+  // once Kaafil has it: what was sold, and what is still owed.
+  for (const tour of tours) {
+    // A booking is billed as a party; Kaafil holds a balance per traveller. Split
+    // the party's total evenly across its members, giving any rounding remainder
+    // to the lead — somebody has to carry the odd paisa, and the lead is who the
+    // desk rings about it.
+    const rows: {
+      travellerRef: string;
+      totalMinor: number;
+      dueMinor: number;
+      currency: string;
+      sourceUpdatedAt: string;
+    }[] = [];
+
+    for (const booking of fixture.bookings.filter((b) => b.tourId === tour.tourId)) {
+      const party = fixture.travellers.filter((t) => t.bookingRef === booking.bookingRef);
+      if (party.length === 0) continue;
+
+      const due = booking.totalMinor - booking.receivedMinor;
+      const share = Math.floor(booking.totalMinor / party.length);
+      const dueShare = Math.floor(due / party.length);
+      const leadIndex = Math.max(
+        0,
+        party.findIndex((t) => t.partyRole === 'LEAD'),
+      );
+
+      party.forEach((traveller, i) => {
+        const isLead = i === leadIndex;
+        rows.push({
+          travellerRef: traveller.travellerId,
+          totalMinor: share + (isLead ? booking.totalMinor - share * party.length : 0),
+          dueMinor: dueShare + (isLead ? due - dueShare * party.length : 0),
+          currency: tour.currency,
+          sourceUpdatedAt: booking.sourceUpdatedAt,
+        });
+      });
+    }
+
+    if (rows.length === 0) {
+      log(`    ${tour.tourId}: no bookings to price.`);
+      continue;
+    }
+
+    try {
+      await kaafil.trips.balance.push({ tripRef: tour.tourId, balances: rows });
+      balancesPushed += rows.length;
+      const owing = rows.filter((r) => r.dueMinor > 0).length;
+      log(`    ${tour.tourId}: ${rows.length} balances, ${owing} still owing.`);
+    } catch (error) {
+      failures.push(toFailure('trips.balance.push', tour.tourId, error));
+    }
+  }
+
   if (failures.length > 0) {
     const codes = new Map<string, number>();
     for (const f of failures) codes.set(f.code, (codes.get(f.code) ?? 0) + 1);
@@ -493,7 +612,16 @@ export async function enrichTrips(
     );
   }
 
-  return { itineraryItems, rooms, roomingAssigned, checklistItems, floatsIssued, failures };
+  return {
+    itineraryItems,
+    rooms,
+    roomingAssigned,
+    checklistItems,
+    floatsIssued,
+    pickupStops,
+    balancesPushed,
+    failures,
+  };
 }
 
 /** Re-exported so the CLI does not have to import from two places. */

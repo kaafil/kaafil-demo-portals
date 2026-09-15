@@ -18,3 +18,7 @@ fixtures/bulk.generated.json
 
 # Bundled from sw/ by `pnpm build:sw`. Generated, never edited by hand.
 public/sw.js
+
+# A defect list written against Kaafil while integrating. Kept as a local
+# record; this repo is public and the file reads as a bug report, not a demo.
+docs/FINDINGS.md

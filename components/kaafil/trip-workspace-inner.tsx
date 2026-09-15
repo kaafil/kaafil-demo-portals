@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { buildShareUrl, hostBrand } from './brand';
 import { agencyAdminCredential } from './credential';
-import { WhenSessionReady } from './session-gate';
 
 /**
  * Kaafil's trip workspace, mounted as one tab of the CRM's own departure page.
@@ -62,30 +61,28 @@ export default function TripOperationsInner({
       buildShareUrl={buildShareUrl}
       onSessionExpired={() => router.push('/login')}
     >
-      <WhenSessionReady label="on-the-ground operations">
-        <TripWorkspace
-          tripRef={tripRef}
-          // The kit ships no router — every navigation is a callback, and the
-          // host decides what it means. "Open full profile" therefore lands on
-          // the CRM's own traveller directory, at the CRM's own URL, which is
-          // what stops the tab reading as an iframe.
-          onOpenTravellerProfile={() => router.push('/admin/travellers' as never)}
-          // Tier 4 of the customization ladder: replace a named component,
-          // keep every bit of the data wiring behind it.
-          //
-          // The kit's own head repeats what the CRM's page header two inches
-          // above already says — the trip name, its status, its dates. Two
-          // <h1>s describing one record is the specific thing that makes an
-          // embed look embedded, and it is also just wrong for a screen
-          // reader. So the host suppresses it and keeps its own.
-          //
-          // Worth noting what this does NOT cost: the tabs, the panels, the
-          // capability gating and every request underneath are untouched.
-          // Descending a tier changes what renders, never how anything talks
-          // to Kaafil.
-          components={{ TripWorkspaceHead: () => null }}
-        />
-      </WhenSessionReady>
+      <TripWorkspace
+        tripRef={tripRef}
+        // The kit ships no router — every navigation is a callback, and the
+        // host decides what it means. "Open full profile" therefore lands on
+        // the CRM's own traveller directory, at the CRM's own URL, which is
+        // what stops the tab reading as an iframe.
+        onOpenTravellerProfile={() => router.push('/admin/travellers' as never)}
+        // Tier 4 of the customization ladder: replace a named component,
+        // keep every bit of the data wiring behind it.
+        //
+        // The kit's own head repeats what the CRM's page header two inches
+        // above already says — the trip name, its status, its dates. Two
+        // <h1>s describing one record is the specific thing that makes an
+        // embed look embedded, and it is also just wrong for a screen
+        // reader. So the host suppresses it and keeps its own.
+        //
+        // Worth noting what this does NOT cost: the tabs, the panels, the
+        // capability gating and every request underneath are untouched.
+        // Descending a tier changes what renders, never how anything talks
+        // to Kaafil.
+        components={{ TripWorkspaceHead: () => null }}
+      />
     </KaafilUIKitProvider>
   );
 }
