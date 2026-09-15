@@ -1,9 +1,10 @@
 import type { Route } from 'next';
 import type { ReactNode } from 'react';
-import { signOut } from '@/app/_actions/auth';
 import { BRAND, titleCase } from '@/config/brand';
 import type { CrmStaff } from '@/fixtures/types';
 import { DeskNavLink } from './desk-nav-link';
+import type { NavIconKey } from './nav-icon';
+import { SidebarUser } from './sidebar-user';
 import { Wordmark } from './wordmark';
 
 /**
@@ -29,19 +30,24 @@ import { Wordmark } from './wordmark';
 
 const NAV: readonly {
   group: string;
-  items: readonly { href: Route; label: string; kaafil?: boolean }[];
+  items: readonly {
+    href: Route;
+    label: string;
+    icon: NavIconKey;
+    badge?: string;
+  }[];
 }[] = [
   {
     group: 'Operations',
     items: [
-      { href: '/admin/trips', label: titleCase(BRAND.vocabulary.tourPlural) },
-      { href: '/admin/travellers', label: 'Traveller records' },
-      { href: '/admin/operations', label: 'On the ground', kaafil: true },
+      { href: '/admin/trips', label: titleCase(BRAND.vocabulary.tourPlural), icon: 'trips' },
+      { href: '/admin/travellers', label: 'Traveller records', icon: 'travellers' },
+      { href: '/admin/operations', label: 'On the ground', icon: 'operations', badge: 'live' },
     ],
   },
   {
     group: 'Office',
-    items: [{ href: '/admin/staff', label: 'Staff' }],
+    items: [{ href: '/admin/staff', label: 'Staff', icon: 'staff' }],
   },
 ];
 
@@ -53,32 +59,23 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
         style={{ height: 'var(--topbar-height)', zIndex: 'var(--z-sticky)' }}
       >
         <Wordmark href="/admin/trips" />
-        <div className="flex items-center gap-3 text-sm">
-          <span className="opacity-90">
-            {staff.fullName} · {staff.staffCode}
-          </span>
-          <form action={signOut.bind(null, 'desk')}>
-            <button
-              type="submit"
-              className="rounded-control border border-current/30 px-2 py-1 text-sm text-topbar-ink hover:bg-current/10"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
+        <span className="text-sm text-ink-faint">{BRAND.companyName}</span>
       </header>
 
       <div className="flex items-stretch">
         <nav
-          className="shrink-0 border-r border-sidebar-border bg-sidebar-bg py-3"
+          className="flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg pt-3"
           style={{
             width: 'var(--sidebar-width)',
             minHeight: 'calc(100dvh - var(--topbar-height))',
           }}
         >
           {NAV.map((section) => (
-            <div key={section.group} className="mb-4">
-              <div className="px-4 pb-1 text-xs font-semibold tracking-wide text-ink-faint uppercase">
+            <div key={section.group} style={{ marginBlockEnd: 'var(--nav-group-gap)' }}>
+              <div
+                className="pb-1 text-xs font-semibold tracking-wide text-ink-faint uppercase"
+                style={{ paddingInline: 'var(--nav-padding-x)' }}
+              >
                 {section.group}
               </div>
               {section.items.map((item) => (
@@ -86,14 +83,18 @@ export function DeskShell({ staff, children }: { staff: CrmStaff; children: Reac
                   key={item.href}
                   href={item.href}
                   label={item.label}
-                  kaafil={item.kaafil}
+                  icon={item.icon}
+                  badge={item.badge}
                 />
               ))}
             </div>
           ))}
+          <SidebarUser staff={staff} portal="desk" />
         </nav>
 
-        <main className="min-w-0 flex-1 p-4">{children}</main>
+        <main className="min-w-0 flex-1" style={{ padding: 'var(--content-padding)' }}>
+          {children}
+        </main>
       </div>
     </div>
   );

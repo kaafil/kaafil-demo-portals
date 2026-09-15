@@ -209,6 +209,20 @@
   --cell-padding-y: 0.75rem;
   --cell-padding-x: 1rem;
 
+  /* Nav rows. Travyan's console sets these much airier than `main` does, and
+     an icon column that a branch cannot resize is an icon column that will
+     look wrong in half of them. */
+  --nav-row-height: 2.5rem;
+  --nav-row-gap: 0.25rem;
+  --nav-padding-x: 0.875rem;
+  --nav-icon-size: 1.0625rem;
+  --nav-group-gap: 1.25rem;
+
+  /* The padding around a page's own content. Its own token rather than a
+     `--space-*` step, because a branch that wants a roomier page should not
+     have to move a spacing step that every card and stack also reads. */
+  --content-padding: 1.5rem;
+
   --topbar-bg: var(--surface);
   --topbar-ink: var(--ink);
   --topbar-border: var(--border-faint);
