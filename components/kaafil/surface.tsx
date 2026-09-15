@@ -8,15 +8,16 @@ import type { ComponentType } from 'react';
  *
  * ── WHY `ssr: false` IS NOT OPTIONAL HERE ──────────────────────────────────
  *
- * The first mount of `TripWorkspace` returned a 500:
+ * Server-render one of these surfaces and it fails with:
  *
  *   useKaafilClient() was called outside a <SessionShell> — mount the provider
  *   tree above this component before calling this hook.
  *
- * The provider WAS above it. The problem is that the session is opened by an
- * async fetch to `/api/admin-session`, and there is no such thing as an async
- * same-origin fetch during a server render — so on the server the provider has
- * no client to hand down, and the first component to ask for one throws.
+ * The message misleads, because the provider IS above it. The real cause is
+ * that the session opens through an async fetch to `/api/admin-session`, and
+ * there is no such thing as an async same-origin fetch during a server render —
+ * so on the server the provider has no client to hand down, and the first
+ * component to ask for one throws.
  *
  * This is not a quirk to work around; it is what these surfaces are. Once the
  * browser holds a session it talks to the engine DIRECTLY, and the manager

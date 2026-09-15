@@ -13,7 +13,6 @@ import type {
   BookingStatus,
   DutyRole,
   MealPreference,
-  StaffRole,
   TourStatus,
   TourStyle,
 } from '@/fixtures/types';
@@ -76,11 +75,6 @@ const STYLE_LABEL: Record<TourStyle, string> = { GROUP_TOUR: 'Group tour', TREK:
 export function TourStyleChip({ style }: { style: TourStyle }) {
   return <Chip tone={style === 'TREK' ? 'info' : 'neutral'} label={STYLE_LABEL[style]} />;
 }
-
-export const STAFF_ROLE_LABEL: Record<StaffRole, string> = {
-  TOUR_LEADER: 'Tour leader',
-  DESK_EXECUTIVE: 'Desk executive',
-};
 
 export const DUTY_LABEL: Record<DutyRole, string> = {
   LEAD_LEADER: 'Lead leader',

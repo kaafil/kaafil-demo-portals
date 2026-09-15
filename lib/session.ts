@@ -6,7 +6,8 @@ import { getStore } from '@/lib/db';
 
 /**
  * The CRM's own sign-in. There is no password store here and there never will
- * be — this is a picker over the seeded roster, exactly like the donor repo's.
+ * be — it is a picker over the seeded roster, so that signing in never gets in
+ * the way of the thing this repo is actually demonstrating.
  *
  * ── TWO COOKIES, NOT ONE ───────────────────────────────────────────────────
  *
@@ -81,14 +82,6 @@ export function rosterAll(): CrmStaff[] {
       if (a.role !== b.role) return a.role === 'TOUR_LEADER' ? -1 : 1;
       return a.fullName.localeCompare(b.fullName);
     });
-}
-
-export function rosterFor(portal: Portal): CrmStaff[] {
-  const role = PORTAL_ROLE[portal];
-  return getStore()
-    .listStaff()
-    .map((row) => row.staff)
-    .filter((staff) => staff.role === role && staff.active);
 }
 
 export function cookieName(portal: Portal): string {

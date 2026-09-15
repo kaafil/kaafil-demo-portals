@@ -23,12 +23,12 @@
     "lint": "biome check .",
     "format": "biome check --write ."
   },
-  "comment:seed:kaafil": "Deliberately NOT part of `pnpm dev`. Pushing 56 departures into the tenant means 56 `journey.waitUntilReady` waits and a rate limit you will hit. Every call is an upsert, so running it twice is safe \u2014 but run it because fixtures changed, not because you restarted the dev server.",
+  "comment:seed:kaafil": "Deliberately NOT part of `pnpm dev`. Pushing 56 departures into the tenant means 56 `journey.waitUntilReady` waits and a rate limit you will hit. Every call is an upsert, so running it twice is safe — but run it because fixtures changed, not because you restarted the dev server.",
   "comment:secrets": "KAAFIL_API_KEY has no NEXT_PUBLIC_ prefix, so Next never inlines it. It is read by app/api/*/route.ts (server-only) and scripts/ingest.ts. lib/kaafil-server.ts carries `import 'server-only'` so a client component that imports it fails the build rather than shipping the key.",
   "dependencies": {
     "better-sqlite3": "^11.8.1",
     "kaafil-js": "0.5.0",
-    "kaafil-react-uikit": "0.10.0",
+    "kaafil-react-uikit": "0.10.1",
     "lucide-react": "^1.46.0",
     "next": "^16.2.1",
     "react": "^19.2.0",

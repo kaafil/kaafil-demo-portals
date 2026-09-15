@@ -12,12 +12,11 @@ import { agencyAdminCredential } from './credential';
  *
  * ── WHY THIS AND NOT `KaafilAgencyWorkspace` ───────────────────────────────
  *
- * The agency-wide Surface was mounted here first, and it looked wrong the
- * moment it rendered — because it brings its own left nav. Trips, Travellers,
- * Managers, Forms, Checklists, Settings: a complete second navigation, sitting
- * inside a CRM that already has one. Two sidebars on one page is the single
- * clearest tell that a product was bolted on, and no amount of token matching
- * fixes it.
+ * `KaafilAgencyWorkspace` is the agency-wide Surface, and it is the wrong one
+ * for an embed: it brings its own left nav. Trips, Travellers, Managers, Forms,
+ * Checklists, Settings — a complete second navigation, inside a CRM that
+ * already has one. Two sidebars on one page is the clearest tell that a product
+ * was bolted on, and no amount of token matching fixes it.
  *
  * `TripWorkspace` is the trip-scoped Surface and has no nav of its own. So the
  * shape becomes the honest one: the desk executive finds a departure in Sharma
@@ -34,7 +33,7 @@ import { agencyAdminCredential } from './credential';
  * `tripRef` takes Kaafil's id or the agency's external one, and we pass the
  * CRM's own `tourId` — `TR-2609-SPITI`. Nothing here has to look up or store a
  * Kaafil id, which is what keeps the CRM the system of record: the mapping
- * lives in `scripts/ingest.ts` and nowhere else.
+ * lives in `lib/ingest.ts` and nowhere else.
  *
  * Default-exported because `surface.tsx` loads it through `next/dynamic`,
  * which resolves a module's default.

@@ -22,16 +22,15 @@ import { managerCredential } from './credential';
  * rather than optional is the right call: an optional one would let somebody
  * mount this, ship it, and find out in the field that four buttons do nothing.
  *
- * The first instinct was to route all four to a CRM screen. That was wrong,
- * and tapping them showed why: Kaafil has its OWN expense form — amount,
- * category, paid-from-float, vendor, receipt photo — because the float a
- * leader is carrying and what they spent it on is Kaafil's to track. Sending
- * that tap to a host stub would be throwing away the better screen.
+ * The tempting answer is to route all four to a CRM screen. That is wrong, and
+ * the expense button is where it shows: Kaafil has its OWN expense form —
+ * amount, category, paid-from-float, vendor, receipt photo — because the float
+ * a leader carries and what they spent it on is Kaafil's to track. Sending
+ * that tap to a host stub throws away the better screen.
  *
- * So they split on who owns the RECORD, which is the only line that holds:
- *
- * All four hand back to `/m/host/...`, and that route answers each one
- * differently, because the right answer depends on who keeps the record:
+ * The line that does hold is who owns the RECORD. All four hand back to
+ * `/m/host/...`, and that route answers each one differently on exactly that
+ * basis:
  *
  *   collect / collectFromGroup   Sharma Travels keeps receipts against
  *                                bookings, so a collection genuinely is its
@@ -52,10 +51,10 @@ import { managerCredential } from './credential';
  * A host that owned expenses would point it at their own screen instead. That
  * the choice exists per record type is the whole reason these are callbacks.
  *
- * (A controlled `activeTab` was tried first, so a quick action could jump
- * straight to Kaafil's Money tab. It works, but it makes the host responsible
- * for tab state the kit already manages well, and a desynced tab is a worse
- * bug than an extra tap.)
+ * A controlled `activeTab` is the other option here — a quick action could
+ * drive the surface straight to Kaafil's Money tab. It works, and it is still
+ * not worth it: it makes the host responsible for tab state the kit already
+ * manages, and a desynced tab is a worse bug than an extra tap.
  *
  * ── STORAGE IS WHAT MAKES IT OFFLINE ───────────────────────────────────────
  *

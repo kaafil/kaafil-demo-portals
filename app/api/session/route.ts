@@ -11,13 +11,12 @@ import { readStaff } from '@/lib/session';
  * the network. The browser asks for a credential and gets back a short-lived,
  * single-identity one.
  *
- * ── THE AUTHORIZATION CHECK THE DONOR REPO DID NOT HAVE ────────────────────
+ * ── THE AUTHORIZATION CHECK IS NOT OPTIONAL ────────────────────────────────
  *
- * The donor's version minted a session for whatever `managerRef` the body
- * named, and said in a comment not to copy it into a real product without
- * adding the check. This is a demo partners will copy, so the check is here:
- * the caller must be signed in to the FIELD portal, and may only mint a
- * session for themselves.
+ * The obvious version of this route mints a session for whatever `managerRef`
+ * the body names. Do not ship that. This route is written the way a real one
+ * has to be: the caller must be signed in to the FIELD portal, and may only
+ * mint a session for themselves.
  *
  * Without it, anybody who can reach this route can act as any tour leader in
  * the tenant — the API key's full reach, handed out one identity at a time.

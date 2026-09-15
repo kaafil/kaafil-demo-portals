@@ -1,14 +1,14 @@
 /**
  * The CRM's own HTTP contract — the one both halves import.
  *
- * WHY THIS FILE EXISTS. `server/` and `app/` are typechecked by two separate
- * tsconfigs that never meet, so nothing was checking the boundary between
- * them. The first build of this repo shipped a browser calling
- * `/api/crm/tours` against a server serving `/api/crm/trips`, and a login
- * screen typed `CrmStaff[]` against a server returning
- * `{ staff: { staff, assignments }[] }`. Both halves typechecked perfectly on
- * their own; the app 404'd on every screen and the Sign in button could never
- * enable, because the identity lookup silently never matched.
+ * WHY THIS FILE EXISTS. A route handler and the component that calls it are
+ * two different files that never reference each other, so nothing checks the
+ * boundary between them. Left implicit, the failure looks like this: a browser
+ * calling `/api/crm/tours` against a server serving `/api/crm/trips`, and a
+ * sign-in screen typed `CrmStaff[]` against a server returning
+ * `{ staff: { staff, assignments }[] }`. Both halves typecheck perfectly on
+ * their own; the app 404s on every screen and the Sign in button never enables,
+ * because the identity lookup silently never matches.
  *
  * Declaring the contract once and having BOTH sides depend on it turns that
  * entire class of defect into a compile error. The route handlers are typed by
@@ -28,8 +28,15 @@ import type {
 } from '@/fixtures/types';
 
 // ── Paths ───────────────────────────────────────────────────────────────────
-// Single source of truth. The server registers these and the client fetches
-// them; neither side writes a path literal of its own.
+// Every URL either half of this app can call, named once. A caller imports the
+// constant instead of writing the string, so renaming a route is a compile
+// error at every call site rather than a 404 found by clicking.
+//
+// `CRM_API` has no caller inside this repo: every screen is server-rendered and
+// reads the store directly, so nothing here fetches the CRM's own HTTP surface.
+// It is declared anyway because the routes are real, and the moment anything
+// does call them — a mobile client, a partner integration — it should import
+// these rather than invent its own copy of the paths.
 
 export const CRM_API = {
   /** The departures list, plus the agency the office belongs to. */

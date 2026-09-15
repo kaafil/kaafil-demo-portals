@@ -16,19 +16,21 @@
  *
  * ── THE KIT OWNS EVERY NON-API GET ─────────────────────────────────────────
  *
- * Its `fetch` handler answers every GET that is not an API call and not
- * declined by `isHostOwned`. A second `fetch` listener adding host rules is
- * therefore dead code — the first `respondWith` wins, and the kit has already
- * responded. We wrote one before learning that; it never ran.
+ * Its `fetch` handler answers every GET except three kinds: a non-`GET`,
+ * anything `isApiRequest` claims, and anything `isHostOwned` declines
+ * (same-origin by default). Everything else is already answered by the time a
+ * second `fetch` listener would see it, because the first `respondWith` wins —
+ * so adding host rules in a listener of your own does not work. Exclude the
+ * route with `isHostOwned` instead.
  *
- * `runtimeCache` is what replaced it. Without it, anything absent from
- * `precache` is never available offline, because the miss path returns the
- * network's answer without storing it. With it, Next's content-hashed chunks
- * are cached as they are fetched — which is what a Next app needs, since those
- * filenames are only decided at build time and there is no `__WB_MANIFEST` to
- * enumerate them.
+ * `runtimeCache` is how the rest of the build becomes available offline.
+ * Without it, anything absent from `precache` never is: the miss path returns
+ * the network's answer without storing it. With it, Next's content-hashed
+ * chunks are cached as they are fetched — which is what a Next app needs,
+ * since those filenames are only decided at build time and there is no
+ * `__WB_MANIFEST` to enumerate them from.
  *
- * The honest consequence, unchanged: the app must be opened ONCE with signal
+ * The honest consequence: the app must be opened ONCE with signal
  * before it works without. That is true of every PWA and is better said out
  * loud than discovered in a valley.
  *
@@ -43,22 +45,35 @@
  *
  * ── SCOPE IS `/m` AND ONLY `/m` ────────────────────────────────────────────
  *
- * Registered with `{ scope: '/m/' }`, matching the manifest. The desk portal
- * has no use for an offline shell, and the traveller share page must never be
- * cached at all — it is somebody's private manifest, opened on a borrowed
- * phone as often as not.
+ * Registered with `{ scope: '/m' }` — no trailing slash. Scope is a prefix
+ * match, so `/m/` would control `/m/login` and NOT `/m`, which is the route
+ * the whole offline story is about. `components/kaafil/register-sw.tsx` is
+ * where that is set, and carries the longer explanation.
+ *
+ * Narrow at all because the desk portal has no use for an offline shell, and
+ * the traveller share page must never be cached — it is somebody's private
+ * manifest, opened on a borrowed phone as often as not.
  */
-
-declare const self: ServiceWorkerGlobalScope;
 
 import { installKaafilOfflineShell } from 'kaafil-react-uikit/offline';
 
 /**
- * Injected by `scripts/build-sw.ts` from the real Next build output.
+ * A service worker's global is a `ServiceWorkerGlobalScope`, not a `Window`.
+ * TypeScript types `self` as the latter for an ordinary module, so it is
+ * re-declared here — this is what makes `self.clients` and `skipWaiting()`
+ * typecheck, and the `/// <reference lib="webworker" />` at the top of the file
+ * is what supplies the type.
+ */
+declare const self: ServiceWorkerGlobalScope;
+
+/**
+ * Injected by `scripts/build-sw.ts`: the short list of files that must already
+ * be on the device for a COLD offline start, before anything has been fetched
+ * once. Everything else arrives through `runtimeCache`.
  *
- * In development it is just the shell: dev chunks are generated on demand and
- * renamed constantly, so precaching them would be meaningless. Offline is a
- * production behaviour here, and `pnpm build && pnpm start` is how you test it.
+ * Offline is a production behaviour either way — `pnpm build && pnpm start` is
+ * how to test it, because a dev build renames its chunks on every edit and
+ * nothing cached under one name is still valid under the next.
  */
 declare const __PRECACHE__: readonly string[];
 
@@ -80,9 +95,9 @@ installKaafilOfflineShell({
     (url.origin === self.location.origin && url.pathname.startsWith('/api/')) ||
     url.hostname.endsWith('kaafil.in'),
   // Next decides its chunk hashes at build time and ships no Workbox manifest,
-  // so they cannot be precached from a worker source. Caching them as they are
-  // requested is the supported answer, and it is why this file no longer needs
-  // a generated list of the whole build.
+  // so a worker source cannot name them to precache them. Caching them as they
+  // are requested is the supported answer, and it is why `precache` below stays
+  // a short hand-written list rather than a generated copy of the whole build.
   runtimeCache: true,
 });
 

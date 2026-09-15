@@ -12,9 +12,9 @@ import { BRAND } from '@/config/brand';
  *
  * `appName` is overridable per portal, and the field app needs it. The default
  * is the desk's name — "Sharma Travels Admin" — and the kit puts it at the top
- * of the manager's Now tab, where it told a tour leader standing in a valley
- * that they were looking at an admin console. The two portals are two
- * products; they need two names.
+ * of the manager's Now tab, which would tell a tour leader standing in a valley
+ * that they are looking at an admin console. The two portals are two products;
+ * they need two names.
  *
  * `headStrategy` is the interesting one. On the two staff surfaces it is
  * `'none'`: those screens live INSIDE a page the CRM already owns, and a
@@ -37,12 +37,12 @@ export function hostBrand(
 /**
  * The brand the traveller's share page wears.
  *
- * It was mounted without one at first, and the page came back blank where the
- * operator's mark should be — which matters more here than anywhere else in
- * the repo. The staff surfaces sit inside chrome that is already branded; this
- * page IS the chrome. It is opened from a WhatsApp message by somebody who has
- * never heard of the operator, let alone Kaafil, and an unbranded page gives
- * them nothing to recognise or trust.
+ * Passing a brand matters more here than anywhere else in the repo, and it is
+ * the easiest one to forget: mount this surface without one and the page
+ * renders blank where the operator's mark should be. The staff surfaces sit
+ * inside chrome that is already branded; this page IS the chrome. It is opened
+ * from a WhatsApp message by somebody who has never heard of the operator, let
+ * alone Kaafil, and an unbranded page gives them nothing to recognise.
  *
  * `own-page` because this document is the kit's to own — see above.
  */

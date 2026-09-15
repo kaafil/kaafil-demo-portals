@@ -13,8 +13,8 @@
  *
  * ── WHY THERE IS NO `server-only` HERE ─────────────────────────────────────
  *
- * There was, and it broke `pnpm seed:kaafil`: the `server-only` package
- * resolves to a module that THROWS anywhere outside a Next server bundle, and
+ * Adding `import 'server-only'` here breaks `pnpm seed:kaafil`: that package
+ * resolves to a module which THROWS anywhere outside a Next server bundle, and
  * the ingest CLI is plain Node under tsx. The guard belongs on the module that
  * holds a constructed client — `lib/kaafil-server.ts` — not on a pure function
  * that reads `process.env`, which the CLI legitimately needs too.

@@ -9,11 +9,11 @@
  *
  * ── WHY VOCABULARY IS A FIRST-CLASS CONCERN ────────────────────────────────
  *
- * The donor fixture's central conceit is that the CRM and Kaafil do not share
+ * The fixture is built on the premise that the CRM and Kaafil do not share
  * words: Sharma Travels says *tour*, *tour leader*, `ON_TOUR`, `CALLED_OFF`;
  * Kaafil says *trip*, *manager*, `IN_PROGRESS`, `CANCELLED`. That is not a
  * quirk of the fixture — it is what every real integration looks like, and
- * `scripts/ingest.ts` is where the two are reconciled on the data side.
+ * `lib/ingest.ts` is where the two are reconciled on the data side.
  *
  * On the UI side it is reconciled here. Every prospect has their own words:
  * some run *departures*, some run *batches*, some run *groups*. A branch that
@@ -60,10 +60,11 @@ export interface Brand {
 }
 
 /**
- * `main`'s brand is the donor fixture's own operator. It is a real-feeling
- * fifteen-year-old tour operator in Pune, which makes it a far better control
- * than a placeholder called "Acme" — every screen has to cope with genuine
- * Indian names, GSTINs, E.164 phones and Devanagari-adjacent place names.
+ * `main`'s brand is the fixture's own operator: a fifteen-year-old tour
+ * operator in Pune. Deliberately not a placeholder called "Acme" — a realistic
+ * operator forces every screen to cope with genuine Indian names, GSTINs,
+ * E.164 phone numbers and long Devanagari-adjacent place names, which is where
+ * layouts actually break.
  */
 export const BRAND: Brand = {
   productName: 'Sharma Travels Admin',

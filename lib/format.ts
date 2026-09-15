@@ -89,11 +89,3 @@ export function initials(fullName: string): string {
   const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
   return (first + last).toUpperCase();
 }
-
-/** `PAID_IN_FULL` -> `Paid in full`, for anything the desk reads rather than sorts by. */
-export function humanise(token: string): string {
-  const words = token.toLowerCase().split('_');
-  const [head, ...rest] = words;
-  if (head === undefined) return token;
-  return [head.charAt(0).toUpperCase() + head.slice(1), ...rest].join(' ');
-}
