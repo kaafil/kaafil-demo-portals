@@ -31,7 +31,10 @@ export async function optionalString(
   }
   const body = (parsed as Record<string, unknown> | null) ?? {};
   const value = body[field];
-  return { body, value: typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined };
+  return {
+    body,
+    value: typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined,
+  };
 }
 
 /**
