@@ -5,6 +5,7 @@ import { signOut } from '@/app/_actions/auth';
 import { BRAND, titleCase } from '@/config/brand';
 import type { CrmStaff } from '@/fixtures/types';
 import { DeskNavLink } from './desk-nav-link';
+import { Wordmark } from './wordmark';
 
 /**
  * The desk portal's chrome: masthead plus a persistent left nav.

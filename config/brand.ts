@@ -47,8 +47,13 @@ export interface Brand {
   companyName: string;
   /** Short form for a tab title and the PWA manifest's `short_name`. */
   shortName: string;
-  /** Path under `public/`. Swap the file, keep the path. */
-  logoPath: string;
+  /**
+   * Path under `public/`. Swap the file, keep the path.
+   *
+   * `null` means this brand has no mark and its name should simply be set in
+   * its own typeface — which is the honest answer for a good many operators.
+   */
+  logoPath: string | null;
   /** One line under the sign-in heading. */
   tagline: string;
   vocabulary: BrandVocabulary;
