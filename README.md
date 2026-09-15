@@ -75,6 +75,7 @@ holds nothing real.
 | `pnpm seed -- --core` | just the 6 hand-written departures |
 | `pnpm seed:kaafil` | push into your Kaafil tenant. Idempotent, rate-limited |
 | `pnpm typecheck` / `pnpm lint` | tsc / Biome |
+| `pnpm audit:tokens` | fail if a token is declared and nothing reads it |
 
 `seed:kaafil` is deliberately **not** part of `pnpm dev`: 56 departures means
 56 `journey.waitUntilReady` waits and a rate limit you will hit. Run it because
@@ -124,6 +125,23 @@ A branch is allowed to touch **five things**:
 Anything else means `main` is missing an abstraction. Fix it on `main` and
 merge down — branches never merge back.
 
+That loop is not theoretical; the first branch triggered it four times in an
+afternoon. Travyan needed a logo image (`Wordmark`), nav icons (`NavIcon`), a
+sidebar identity block, and five spacing tokens that did not exist. All four
+landed on `main`, so the second branch gets them free.
+
+### `styles/tokens.css` conflicts on every merge, and that is fine
+
+Both sides edit the same `:root` block, so `git merge main` will stop there
+most times. The resolution rule never changes:
+
+> **`main` owns the shape and the comments. The branch owns the right-hand
+> side.**
+
+Take `main`'s structure wholesale, including any token it just added, and put
+your values in it. A token you drop on the floor here is a token that silently
+stops working later — which is what `pnpm audit:tokens` is for.
+
 ### Why that is enough
 
 `styles/kaafil-bridge.css` maps the CRM's tokens onto Kaafil's twelve
@@ -146,8 +164,30 @@ client's language in one object instead of one grep.
 
 ## Status
 
-- [x] Phase 1 — the CRM, standing alone, with zero Kaafil code
-- [ ] Phase 2 — the key boundary and the tenant push
-- [ ] Phase 3 — the three surfaces mounted
-- [ ] Phase 4 — the manager PWA and the offline outbox
-- [ ] Phase 5 — `config/brand.ts` fully extracted, first client branch
+- [x] **Phase 1** — the CRM, standing alone, with zero Kaafil code
+- [x] **Phase 2** — the key boundary, and the book of business in a live tenant
+      (56 trips, 728 travellers, 16 managers, 4 agency admins, 0 failures)
+- [ ] **Phase 3** — the three surfaces mounted
+- [ ] **Phase 4** — the manager PWA and the offline outbox
+- [x] **Phase 5 (early)** — `client/travyan`, proving the re-skin path
+
+Phase 5 ran ahead of 3 and 4 on purpose: re-skinning is the claim the whole
+repo exists to make, and finding out on the first branch that the chrome was
+not themeable was worth far more than finding out on the fifth.
+
+### Branches
+
+| | |
+|---|---|
+| `main` | the reference integration, deliberately plain |
+| `client/travyan` | Travyan — an AI travel CRM. Their real tokens, logo and vocabulary |
+
+### Gotchas worth knowing before you hit them
+
+**`list()` returns a lazy paginator, not an array.** `items` is `[]` and
+`hasNext` is `true` until you call `next()`. Reading `.items` straight off the
+return value reports zero records and looks exactly like a failed ingest.
+
+**Travellers show as "Not tracked" in the console's Plan & Usage.** That is the
+plan's metering, not your data — Storage says the same. Read a manifest back
+if you want to confirm what landed.
