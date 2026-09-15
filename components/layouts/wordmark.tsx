@@ -7,15 +7,15 @@ import { BRAND } from '@/config/brand';
  *
  * ── WHY THIS COMPONENT EXISTS ──────────────────────────────────────────────
  *
- * `Brand.logoPath` was declared from the start and then not used — the shells
- * rendered `BRAND.productName` as text. The first client branch found it
- * immediately: Travyan's brand IS a wordmark, and setting `productName` to
- * "Travyan" gets you the right word in the wrong typeface.
+ * Rendering `BRAND.productName` as text in each shell is the obvious shortcut,
+ * and it breaks on the first real client: plenty of operators' brands ARE a
+ * wordmark, and setting `productName` to their name gets you the right word in
+ * the wrong typeface.
  *
- * Rather than let the branch edit `desk-shell.tsx`, the capability moved here,
- * on `main`, where every branch gets it. That is the intended loop and it is
- * worth naming: a branch that needs to touch a component is reporting a gap in
- * `main`. Fix it on `main` and merge down.
+ * So the capability lives here, on `main`, where every branch inherits it
+ * rather than editing `desk-shell.tsx` for itself. That is the intended loop
+ * and it is worth naming: a branch that needs to touch a component is
+ * reporting a gap in `main`. Fix it on `main` and merge down.
  *
  * ── WHY BOTH AN IMAGE AND TEXT ─────────────────────────────────────────────
  *

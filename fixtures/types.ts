@@ -11,7 +11,7 @@
  * this file knows what a `tripRef`, a `managerRef`, an `agencyAdmin`, an
  * `eventType` or a `sourceUpdatedAt`-bearing upsert is. Translating these rows
  * into Kaafil's shapes is a real job with real judgement calls in it, it
- * happens in exactly one place (`server/ingest.ts`), and it is the same job a
+ * happens in exactly one place (`lib/ingest.ts`), and it is the same job a
  * paying partner has to do on day one.
  *
  * Two conventions hold everywhere below:
@@ -274,9 +274,9 @@ export interface CrmTraveller {
 // ---------------------------------------------------------------------------
 
 /**
- * Everything `server/db.ts` writes into crm.sqlite on boot. `fixtures/core.ts`
- * exports one of these by hand; `fixtures/bulk.ts` generates a much larger one
- * of the same shape.
+ * Everything `lib/db/store.ts` writes into `crm.sqlite` when you run `pnpm seed`.
+ * `fixtures/core.ts` exports one of these by hand; `fixtures/bulk.ts` generates a
+ * much larger one of the same shape.
  */
 export interface CrmFixture {
   agency: CrmAgency;

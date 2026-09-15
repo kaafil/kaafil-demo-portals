@@ -99,7 +99,7 @@ export function TravellerTable({ travellers }: { travellers: readonly TravellerR
                 <div className="flex flex-wrap gap-1 text-xs">
                   {/* A medical note is shown as a FLAG, never as its text. The
                       free text stays in the CRM and is never pushed to Kaafil
-                      — see scripts/ingest.ts — so that it cannot reach a share
+                      — see lib/ingest.ts — so that it cannot reach a share
                       link. A directory screen is not the place to leak it
                       either. */}
                   {traveller.medicalNotes !== null && (

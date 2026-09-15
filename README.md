@@ -77,11 +77,13 @@ holds nothing real.
 | `pnpm dev:only` | Next without re-seeding |
 | `pnpm seed` | rebuild `crm.sqlite`. Offline, no key, safe to repeat |
 | `pnpm seed -- --core` | just the 6 hand-written departures |
+| `pnpm seed:bulk` | regenerate `fixtures/bulk.generated.json`, then seed |
 | `pnpm seed:kaafil` | push into your Kaafil tenant. Idempotent, rate-limited |
 | `pnpm seed:kaafil -- --enrich-only` | skip the 7-step push, redo just the depth pass |
 | `pnpm seed:kaafil -- --shallow` | push trips only; no itineraries, rooming or checklists |
 | `pnpm build:sw` | bundle the service worker (runs inside `pnpm build`) |
 | `pnpm typecheck` / `pnpm lint` | tsc / Biome |
+| `pnpm format` | Biome, writing fixes |
 | `pnpm audit:tokens` | fail if a token is declared and nothing reads it |
 
 `seed:kaafil` is deliberately **not** part of `pnpm dev`: 56 departures means
@@ -98,18 +100,23 @@ app/
   (manager)/    the field app. Own manifest, own shell, own cookie
   (share)/      the public traveller page. No gate, no chrome
   api/          3 routes hold the key; the rest read SQLite
+components/
+  kaafil/       every Kaafil touchpoint — providers, credentials, brand, SW
+  crm/ ui/      the host's own tables and primitives
+  layouts/      the two shells
 config/         contract.ts (HTTP types) · brand.ts (names) · env.ts (the key)
 fixtures/       the CRM's book of business — types, hand seed, generator
-lib/            db/ · format · session · api
-scripts/        seed.ts (local) · ingest.ts (CRM → Kaafil)
+lib/            ingest.ts + enrich.ts (CRM → Kaafil) · db/ · session · format
+scripts/        seed.ts · ingest.ts · build-sw.ts · audit-tokens.ts
 styles/         tokens.css · kaafil-bridge.css    ← what a branch edits
+sw/             the field app's service worker
 ```
 
-`lib/db/store.ts`, `scripts/ingest.ts` and `fixtures/` are lifted from
-[`kaafil-qa-handoff`](../kaafil-qa-handoff), where they were written for the QA
-integration exercise. `ingest.ts` is the file worth reading twice — it is the
-CRM→Kaafil vocabulary translation, and it is the same job a paying partner does
-on day one.
+**`lib/ingest.ts` is the file worth reading twice.** It is the CRM→Kaafil
+vocabulary translation — the same job a partner does on day one, in the order
+they have to do it. `scripts/ingest.ts` is only the command-line wrapper around
+it, and `lib/enrich.ts` is the second pass that fills the boards a bare ingest
+leaves empty.
 
 ---
 
@@ -132,10 +139,11 @@ A branch is allowed to touch **five things**:
 Anything else means `main` is missing an abstraction. Fix it on `main` and
 merge down — branches never merge back.
 
-That loop is not theoretical; the first branch triggered it four times in an
-afternoon. Travyan needed a logo image (`Wordmark`), nav icons (`NavIcon`), a
-sidebar identity block, and five spacing tokens that did not exist. All four
-landed on `main`, so the second branch gets them free.
+That loop is the one to expect, not the exception. Building `client/travyan`
+hit it four times: the skin needed a logo image (`Wordmark`), nav icons
+(`NavIcon`), a sidebar identity block, and five spacing tokens that did not
+exist yet. Each was added to `main` rather than to the branch, so every branch
+after the first gets them without asking.
 
 ### `styles/tokens.css` conflicts on every merge, and that is fine
 
@@ -169,30 +177,26 @@ client's language in one object instead of one grep.
 
 ---
 
-## Status
+## What is actually wired up
 
-- [x] **Phase 1** — the CRM, standing alone, with zero Kaafil code
-- [x] **Phase 2** — the key boundary, and the book of business in a live tenant
-      (56 trips, 728 travellers, 16 managers, 4 agency admins, 0 failures)
-- [x] **Phase 3** — all three surfaces mounted and live, plus the depth pass
-      that fills them (106 itinerary items, 61 rooms, 104 travellers roomed,
-      126 checklist items)
-- [x] **Phase 4** — the manager PWA and the offline outbox. Verified end to
-      end: server killed, `/m` still boots from the cached shell and the cached
-      credential; a write made with the network cut queues in the outbox and
-      drains on reconnect
-- [x] **Phase 5 (early)** — `client/travyan`, proving the re-skin path
+Everything below runs against a live tenant — there is no mocked Kaafil call
+anywhere in this repo.
 
-Phase 5 ran ahead of 3 and 4 on purpose: re-skinning is the claim the whole
-repo exists to make, and finding out on the first branch that the chrome was
-not themeable was worth far more than finding out on the fifth.
+| | |
+|---|---|
+| The CRM, standing alone | 56 departures, 728 travellers, 20 staff, in SQLite |
+| The key boundary | `KAAFIL_API_KEY` server-side only, three routes mint sessions |
+| All three surfaces | desk, field and traveller, each in its own route group |
+| Depth beyond the ingest | itineraries, rooming, checklists, floats, pickups, balances |
+| Offline | installable PWA, cached shell and credential, outbox that drains |
+| The re-skin path | `client/travyan`, differing from `main` in four files |
 
 ### Branches
 
 | | |
 |---|---|
 | `main` | the reference integration, deliberately plain |
-| `client/travyan` | Travyan — an AI travel CRM. Their real tokens, logo and vocabulary |
+| `client/travyan` | a worked client skin — tokens, logo and vocabulary only |
 
 ### Gotchas worth knowing before you hit them
 
@@ -200,9 +204,10 @@ not themeable was worth far more than finding out on the fifth.
 `hasNext` is `true` until you call `next()`. Reading `.items` straight off the
 return value reports zero records and looks exactly like a failed ingest.
 
-**Travellers show as "Not tracked" in the console's Plan & Usage.** That is the
-plan's metering, not your data — Storage says the same. Read a manifest back
-if you want to confirm what landed.
+**Travellers are not metered, and the console says so.** Plan & Usage reports
+travellers as "Not metered" and per-agency storage as "Tenant-wide only" —
+both are statements about what the plan bills, not about your data. Read a
+manifest back if you want to confirm what landed.
 
 **Declare all six CSS layers, with `base` before `kaafil-ui`.** Tailwind's
 preflight resets every `button` to `padding: 0; background: transparent`.
@@ -216,17 +221,17 @@ fetch, so on the server the provider has nothing to hand down and the first
 data hook throws `useKaafilClient() was called outside a <SessionShell>`. Load
 them with `ssr: false` — `components/kaafil/surface.tsx`.
 
-**With a `credentialResolver`, gate on `useSession().status`.** There is a
-first commit where the shell has mounted and no client exists. The big
-Surfaces handle it; `TripWorkspace` does not. The failure is nasty: the child
-throws, the boundary swallows it, the subtree unmounts, and the effect that
-would have opened the session never runs — so the network tab shows *no
-request at all*, which reads like a broken credential rather than a race.
+**The session opens asynchronously, and the kit gates on it for you.** There
+is a first commit where the shell has mounted and no client exists yet. Every
+exported composite waits for it from `kaafil-react-uikit@0.10.0` onward, so a
+host does not need its own gate — on 0.9.x it did, and the failure was nasty:
+the child throws, the boundary swallows it, the subtree unmounts, and the
+effect that would have opened the session never runs, so the network tab shows
+*no request at all*. If you see that, check your kit version first.
 
-**Offline needs a production build.** The precache list is read off
-`.next/static`, which only exists after `next build` — so `pnpm build && pnpm
-start`, not `pnpm dev`. Dev precaches the shell alone, because dev chunks are
-generated on demand and renamed constantly.
+**Offline needs a production build.** `pnpm build && pnpm start`, not
+`pnpm dev`. A dev build renames its chunks on every edit, so nothing cached
+under one name is still valid under the next.
 
 **The snapshot has to be warmed before it is worth anything.** The service
 worker caches the SHELL; the trip data lives in the offline snapshot, which
@@ -241,10 +246,12 @@ saying out loud rather than discovering on a stage.
 Ours registered, activated, precached the shell, reported a healthy scope and
 did not control its own root.
 
-**`installKaafilOfflineShell` owns every non-API GET.** Its network fallback
-never writes to the cache, so anything absent from `precache` is never
-available offline — and a second `fetch` listener adding host rules is dead
-code, because the kit has already responded.
+**`installKaafilOfflineShell` answers almost every GET.** It declines exactly
+three kinds — a non-`GET`, anything `isApiRequest` claims, and anything
+`isHostOwned` declines (same-origin by default). Everything else is already
+answered by the time a second `fetch` listener would see it, so exclude a route
+with `isHostOwned` rather than adding a listener of your own. A miss is not
+cached unless you set `runtimeCache`, which `sw/index.ts` does and explains.
 
 **The depth pass is not made of upserts.** `itinerary.items.add` appends, room
 codes are unique per stay window, checklist keys unique per section. `enrich.ts`

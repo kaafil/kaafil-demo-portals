@@ -5,15 +5,15 @@
  * `kaafil-js`, knows what a `tripRef` is, or has any opinion about what the
  * UI Kit needs — it reads and writes a tour operator's own tables, exactly as
  * the real thing would. The translation into Kaafil's vocabulary happens in
- * one place, `server/ingest.ts`, and nowhere else.
+ * one place, `lib/ingest.ts`, and nowhere else.
  *
  * ── SEEDING IS A COMMAND, NOT A BOOT STEP ─────────────────────────────────
  *
- * The donor repo (`kaafil-qa-handoff`) rebuilt this database inside
- * `openStore()`, on every server boot. That was right for a timed exercise
- * whose whole point was a byte-identical starting state, and it is wrong
- * here: a Next route handler opens the store on a *request*, and a store
- * that wipes itself when a request arrives is not a store.
+ * An earlier version of this file rebuilt the database inside `openStore()`,
+ * on every server boot. That suits a throwaway harness that wants a
+ * byte-identical starting state every time, and it is wrong here: a Next route
+ * handler opens the store on a *request*, and a store that wipes itself when a
+ * request arrives is not a store.
  *
  * So the two halves are separate, and the names say which is which:
  *
@@ -480,9 +480,10 @@ function toTraveller(row: TravellerRow): CrmTraveller {
 // ---------------------------------------------------------------------------
 
 // The four read models these screens render are declared ONCE in
-// `shared/crm-api.ts`, because the browser needs the identical shapes and a
-// second copy here is how the two halves drifted apart the first time. Kept
-// re-exported so existing importers of `../db.js` keep working.
+// `config/contract.ts`, because the browser needs the identical shapes and a
+// second copy here is how the two halves drift apart. They are re-exported
+// from this module so a caller reading the store does not need to know that
+// the types live with the HTTP contract rather than with the database.
 //
 // Both statements are needed: `export type ... from` re-exports the names
 // without binding them in this module's scope, and the store's own signatures
@@ -512,7 +513,7 @@ export interface CrmStore {
   getTour(tourId: string): TourDetail | null;
   listTravellers(): TravellerRecord[];
   listStaff(): StaffRecord[];
-  /** The whole seed, for `server/ingest.ts` to translate into Kaafil's shapes. */
+  /** The whole seed, for `lib/ingest.ts` to translate into Kaafil's shapes. */
   snapshot(): CrmFixture;
   close(): void;
 }

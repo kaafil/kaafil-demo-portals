@@ -27,12 +27,13 @@
  *
  * ── THE TWELVE ─────────────────────────────────────────────────────────────
  *
- * `kaafil-product-docs/ui-kit/05-theming-and-branding.md §2.2` names a subset
- * of twelve semantic tokens that ALONE satisfy the reskin done-gate: a
- * side-by-side screenshot where a non-technical reviewer cannot find the
- * seam. They are drawn exclusively from the kit's semantic layer — never a
- * primitive, never a component-scoped token — because either would defeat the
- * point of a small, stable reskin surface.
+ * Kaafil publishes twelve semantic tokens as the whole supported reskin
+ * surface — map these and the embedded surfaces match the host, to the
+ * standard of a side-by-side screenshot where a non-technical reviewer cannot
+ * find the seam. They are drawn exclusively from the kit's semantic layer,
+ * never a primitive and never a component-scoped token, because either would
+ * couple a branch to the kit's internals and turn a version bump into a
+ * re-skin.
  *
  * All twelve are mapped below and they are the whole required surface. If you
  * find yourself adding a thirteenth, ask first whether the CRM token it would

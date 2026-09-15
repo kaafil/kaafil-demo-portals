@@ -6,7 +6,7 @@ import { getStore } from '@/lib/db';
  * The departures list, plus the agency the office belongs to.
  *
  * Note the URL says `trips` while everything it returns is called a `tour`.
- * That mismatch is inherited from the donor fixture and it is kept on purpose:
+ * That mismatch is deliberate:
  * Sharma Travels says *tour*, Kaafil says *trip*, and a partner integrating
  * for real will have exactly this kind of seam somewhere in their own system.
  * A demo that quietly renamed one side would be hiding the interesting part.

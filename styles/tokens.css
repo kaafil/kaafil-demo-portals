@@ -43,12 +43,12 @@
  *
  * ── WHY THE RAMPS ARE RAMPS ────────────────────────────────────────────────
  *
- * Categories follow `kaafil-product-docs/ui-kit/05-theming-and-branding.md
- * §2.1`, including the two that document flags as gaps in the older reference
- * app and that are closed here: an explicit `--target-*` hit-area family, and
- * an explicit `--z-*` stacking scale. Both were previously ad-hoc per
- * component (`h-11`, `z-50`), which means two components eventually disagree
- * and nobody can say which is right.
+ * The categories follow Kaafil's own token taxonomy, so that mapping the two
+ * in `kaafil-bridge.css` is a rename rather than a translation. Two of them
+ * are easy to leave out and are declared explicitly here: a `--target-*`
+ * hit-area family and a `--z-*` stacking scale. Left ad-hoc per component
+ * (`h-11` here, `z-50` there) those are exactly the values that drift until
+ * two components disagree and nobody can say which is right.
  *
  * Surfaces and text are STEPPED ramps, not a foreground/background pair. A
  * reskinner who collapses `--surface`, `--surface-alt` and `--canvas` to one

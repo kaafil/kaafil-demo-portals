@@ -3,10 +3,11 @@
  *
  * ── WHY THIS IS A SECOND PASS AND NOT MORE STEPS ───────────────────────────
  *
- * `ingest.ts` is lifted from `kaafil-qa-handoff` and does the seven things a
- * partner MUST do to make a trip exist: agency, managers, admins, trips,
- * manifests, assignments, journeys. That is the integration contract, and it
- * is worth keeping recognisable.
+ * `lib/ingest.ts` does the seven things a partner MUST do to make a trip
+ * exist: agency, managers, admins, trips, manifests, assignments, journeys.
+ * That is the integration contract, and it is worth keeping recognisable as
+ * exactly seven steps rather than diluted with everything else a tenant
+ * eventually holds.
  *
  * This file is the part that makes the product look like it has been in use.
  * Ingest alone gets you trips whose Day-by-day plan is empty, whose Rooming

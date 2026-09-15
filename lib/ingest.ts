@@ -54,9 +54,9 @@
  * ── THE SANDBOX TRIP CAP ───────────────────────────────────────────────────
  *
  * A sandbox minted for a partner account holds FIVE trips; the sixth
- * `trips.upsert` that CREATES a trip is refused with `TEST_TRIP_LIMIT`. This
- * fixture has six departures, and `pnpm reset:kaafil` plants one fixture trip
- * of Kaafil's own first — so after a reset there are four free slots, not five.
+ * `trips.upsert` that CREATES a trip is refused with `TEST_TRIP_LIMIT`. The
+ * core fixture alone has six departures, so on a `kf_test_` key the last one
+ * is refused before the bulk fixture is even considered.
  *
  * "Minted for a partner account" is the precise claim, not "any test key": the
  * ceiling is a per-tenant column, and Kaafil's own shared demo tenant is
@@ -66,9 +66,9 @@
  *
  * That is a real product limit, not a bug to route around, so the ingest does
  * the one thing it can: it pushes in SCENARIO-CRITICALITY order (see
- * `INGEST_PRIORITY`), so the departures the exercise actually names survive
- * the cap and the least load-bearing ones are the ones refused. The refusal is
- * collected like any other failure and explained at the end of the run.
+ * `INGEST_PRIORITY`), so the departures worth demonstrating survive the cap and
+ * the least load-bearing ones are the ones refused. The refusal is collected
+ * like any other failure and explained at the end of the run.
  */
 
 import { isKaafilError, type Kaafil } from 'kaafil-js';
@@ -243,20 +243,22 @@ export function zonedInstant(
  * reason that has nothing to do with the CRM. The constraint is Kaafil's, so
  * the ordering lives next to the Kaafil call.
  *
- * The ranking is by what the exercise NAMES BY REF, not by what looks
- * interesting:
+ * The ranking is by which STATE each departure demonstrates, not by which
+ * looks interesting. Each one is the only example of its case:
  *
- *   SPITI      milestones 6 and 10 — the only mid-tour departure, and the one
- *              the offline test is written against.
- *   MEGHALAYA  milestone 7 and §4 — the cancelled trip. Also the regression
- *              guard for the worst finding of the last QA round, when it read
- *              "Upcoming · Starts in 5 days".
- *   KERALA     milestone 7 and all of §5 — the closed-out trip, so the only
- *              way to exercise the 423 lock.
- *   LADAKH     milestone 5's desk manifest; the clean pre-departure case.
- *   RISHIKESH  §7's money checks. Lands on a fresh sandbox, not a reset one.
- *   HAMPTA     the deliberate sacrifice — a trek with walk-ins, named by no
- *              milestone.
+ *   SPITI      mid-tour. The only departure currently running, so it is the
+ *              one every "what is happening right now" screen has to read,
+ *              and the one the offline walkthrough is written against.
+ *   MEGHALAYA  cancelled. Proves a cancelled trip keeps its share links alive
+ *              and stops advertising itself as upcoming.
+ *   KERALA     closed out. The only way to see the `423` close-out lock, which
+ *              is what stops a settled trip being edited after the fact.
+ *   LADAKH     confirmed, not yet departed. The clean pre-departure case the
+ *              desk manifest is read against.
+ *   RISHIKESH  money. Collections and float against a trip with real balances
+ *              still owing.
+ *   HAMPTA     a trek with walk-ins. First to be sacrificed to the cap, since
+ *              every state above is demonstrated by some other departure.
  *
  * Anything absent from this list sorts last, in fixture order, so adding a
  * departure to the fixtures never silently displaces a ranked one.
@@ -615,7 +617,7 @@ export async function runIngest(kaafil: Kaafil, options: IngestOptions): Promise
     }
     // The one refusal that is EXPECTED rather than a fault, and which reads
     // like a bug if nobody says so: the sandbox's five-trip cap. Left as a
-    // bare code it looks like a broken seed, and the QA goes hunting.
+    // bare error code it looks like a broken seed, and the reader goes hunting.
     if (failures.some((failure) => failure.code === 'TEST_TRIP_LIMIT')) {
       const refused = failures
         .filter((failure) => failure.code === 'TEST_TRIP_LIMIT')
@@ -623,25 +625,21 @@ export async function runIngest(kaafil: Kaafil, options: IngestOptions): Promise
       log('');
       log(
         `    ^ TEST_TRIP_LIMIT is the sandbox's own ceiling, not a broken seed. A kf_test_ ` +
-          `tenant holds FIVE trips; this fixture has six, and pnpm reset:kaafil plants one ` +
-          `fixture trip of Kaafil's own first, which leaves four. Refused here: ` +
+          `tenant holds FIVE trips and this fixture has more. Refused here: ` +
           `${refused.join(', ')}.`,
       );
       log(
-        `    Trips are pushed most-important-first, so the departures the milestones name ` +
-          `land ahead of the ones they do not. Everything you need for milestones 5, 6, 7 ` +
-          `and 10 is in your tenant. What you lose is noted in docs/01-the-exercise.md.`,
+        `    Trips are pushed most-important-first, so the departures worth demonstrating ` +
+          `land ahead of the ones that are not. What was refused is listed above, and ` +
+          `lib/ingest.ts's INGEST_PRIORITY explains the order.`,
       );
-      log(
-        `    A kf_live_ key has no such cap, and is the only way to run pnpm seed:bulk — ` +
-          `see the Volume bullet in docs/02-what-to-look-for.md §7.`,
-      );
+      log(`    A kf_live_ key has no such cap, and is the only way to run pnpm seed:bulk.`);
       log('');
     }
     log(
-      `Quote a requestId if you raise one of these with Kaafil. Fix the cause and restart the ` +
-        `server to replay: the whole ingest is idempotent, and rows that already landed come ` +
-        `back as ignored_stale rather than being written twice.`,
+      `Quote a requestId if you raise one of these with Kaafil. Fix the cause and run ` +
+        `pnpm seed:kaafil again: the whole ingest is idempotent, and rows that already ` +
+        `landed come back as ignored_stale rather than being written twice.`,
     );
   }
 

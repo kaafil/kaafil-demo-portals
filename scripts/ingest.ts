@@ -3,11 +3,9 @@
  *
  * ── WHY THIS IS NOT PART OF `pnpm dev` ─────────────────────────────────────
  *
- * The donor repo ran this on every server boot, and warned loudly against a
- * file watcher for exactly that reason. With 56 departures it is 56 trip
- * upserts, 56 manifests and 56 journeys to build — several minutes and a rate
- * limit you will hit. Wiring it to boot would lock out anyone who restarts
- * twice.
+ * With 56 departures this is 56 trip upserts, 56 manifests and 56 journeys to
+ * build — several minutes, and a rate limit you will hit. Wiring it to server
+ * boot, or to a file watcher, would lock out anyone who restarts twice.
  *
  * It is safe to run again. Every call in `lib/ingest.ts` is an upsert carrying
  * the CRM row's own `sourceUpdatedAt`, so a second run answers `ignored_stale`

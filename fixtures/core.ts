@@ -2838,7 +2838,7 @@ const TRAVELLERS: readonly CrmTraveller[] = [
 ];
 
 /**
- * The seed `server/db.ts` writes into crm.sqlite on every boot.
+ * The seed `lib/db/store.ts` writes into `crm.sqlite` when you run `pnpm seed`.
  *
  * Sixty-two travellers across six departures, twenty-eight bookings, six staff.
  * If you want more — a manifest big enough to make pagination and list

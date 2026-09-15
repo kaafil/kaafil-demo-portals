@@ -1,6 +1,6 @@
 /**
- * `pnpm build:sw` — bundle `sw/index.ts` into `public/sw.js`, with a precache
- * list read off the real Next build.
+ * `pnpm build:sw` — bundle `sw/index.ts` into `public/sw.js`, with the precache
+ * list and cache name compiled into it.
  *
  * ── WHY THIS STEP EXISTS AT ALL ────────────────────────────────────────────
  *
@@ -15,21 +15,18 @@
  *
  * ── WHY THE PRECACHE LIST IS SHORT ─────────────────────────────────────────
  *
- * It used to walk `.next/static` and precache the entire build, because the
- * kit's miss path returned the network's answer without storing it — so
- * anything absent from `precache` was never available offline.
+ * Precaching is for what must ALREADY be on the device the first time it opens
+ * with no signal: the shell, the sign-in page, the manifest and the brand
+ * assets. Nothing else belongs here, because the worker sets `runtimeCache`
+ * and caches successful same-origin responses as they are fetched.
  *
- * `kaafil-react-uikit@0.10.0` added `runtimeCache`, which caches successful
- * same-origin responses as they are fetched. That is the right shape for Next:
- * chunk hashes are decided at build time and there is no `__WB_MANIFEST` to
- * read them from, so caching on demand beats enumerating a directory.
+ * That split is the right one for Next specifically. Its chunk filenames carry
+ * content hashes decided during `next build`, and it emits no Workbox manifest
+ * to read them from — so a worker source cannot name them, and caching them on
+ * demand beats trying to enumerate a directory that has not been written yet.
  *
- * What stays precached is what must be present on a COLD offline start, before
- * anything has been fetched once: the shell, the sign-in page, the manifest
- * and the brand assets.
- *
- * Offline is still a production behaviour — `pnpm build && pnpm start` is how
- * to test it — because a dev build's chunks are renamed on every edit.
+ * Offline is a production behaviour — `pnpm build && pnpm start` is how to test
+ * it — because a dev build renames its chunks on every edit.
  */
 
 import { createHash } from 'node:crypto';
@@ -48,16 +45,12 @@ function walkPublic(dir: string, out: string[] = []): string[] {
 }
 
 /**
- * The shell first, then the build. `/m/login` is in here deliberately: a leader
- * whose session cached credential has expired lands on sign-in, and a sign-in
- * page that needs the network to render is a sign-in page they cannot reach.
+ * `/m/login` is in this list deliberately, and it is the entry most likely to
+ * look redundant: a leader whose cached credential has expired is sent to
+ * sign in, and a sign-in page that needs the network to render is a sign-in
+ * page they cannot reach.
  */
 const precache = [
-  // The shell and the handful of files that must be there on a COLD offline
-  // start, before anything has been fetched once. Everything else — Next's
-  // hashed chunks, the fonts — is cached at runtime by the kit's
-  // `runtimeCache`, which is why this list is short and hand-written again
-  // rather than walked out of `.next/static`.
   '/m',
   '/m/login',
   '/manifest.webmanifest',
