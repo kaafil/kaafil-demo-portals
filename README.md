@@ -54,7 +54,23 @@ Sign in at `/login` — one page for the whole demo. Pick a **tour leader** and
 you land in the field app; pick a **desk executive** and you land at the office
 portal. Where you go follows from the job, because they are different products.
 
-Node 20.11+ and pnpm. No Docker, no database server.
+Node 20.11+ and pnpm. No database server — the CRM's own store is a SQLite
+file. A `Dockerfile` is included for deploying it; local development does not
+need it.
+
+### Deploying
+
+Coolify, Dockerfile build pack, **one** instance. The environment it needs:
+
+| | |
+|---|---|
+| `KAAFIL_API_KEY` | **runtime only, never a build arg** — a build arg is recorded in the image history |
+| `KAAFIL_AGENCY_REF` | runtime; must match whatever the tenant was seeded under |
+| `NEXT_PUBLIC_APP_URL` | **build arg** — `NEXT_PUBLIC_*` is inlined by `next build`, so runtime is too late. Also what sets `serverActions.allowedOrigins`, without which sign-in fails behind the proxy in production only |
+
+`pnpm seed` runs at build time, so the image ships with a database and the first
+health probe passes. `/app` stays writable because the live-departure job
+rewrites `crm.sqlite` in place.
 
 ### About the key
 

@@ -1,0 +1,28 @@
+# The builder does `COPY . .`, so this file is the only thing standing between
+# a developer's `.env` — holding a live `kf_live_` key — and an image layer that
+# keeps it for ever and hands it to anyone who can pull the image. It is not
+# housekeeping.
+.env
+.env.*
+!.env.example
+
+# Rebuilt inside the image. A stale local copy would be copied in and then
+# shadow the one the build is about to write.
+crm.sqlite
+crm.sqlite-*
+crm.sqlite.next
+live-state.json
+live-state.json.next
+public/sw.js
+
+# Installed and built in their own stages.
+node_modules
+.next
+*.tsbuildinfo
+
+# Nothing the build reads.
+.git
+.github
+.playwright-mcp
+docs/FINDINGS.md
+graphify-out
