@@ -727,7 +727,24 @@ export function openStore(): CrmStore {
   db.pragma('foreign_keys = ON');
 
   const selectAgency = db.prepare('SELECT * FROM agency LIMIT 1');
-  const selectTours = db.prepare('SELECT * FROM tours ORDER BY start_date DESC, tour_id');
+  /*
+   * ON_TOUR FIRST, then everything else newest-first.
+   *
+   * Plain `start_date DESC` puts next January's departures above the group
+   * that is standing on a mountain today, which is backwards for the one
+   * screen a desk executive keeps open. `components/ui/index.tsx` already
+   * states the rule this follows — ON_TOUR "is the only status the desk
+   * actively watches, because it means there are people out there right now"
+   * — and gives it the only hue nothing else uses; the list ordering was the
+   * half that never honoured it.
+   *
+   * Within each group the order is unchanged, so nothing else about the screen
+   * moves: an upcoming departure is still found where it always was, just
+   * below the ones that are already under way.
+   */
+  const selectTours = db.prepare(
+    "SELECT * FROM tours ORDER BY CASE status WHEN 'ON_TOUR' THEN 0 ELSE 1 END, start_date DESC, tour_id",
+  );
   const selectTour = db.prepare('SELECT * FROM tours WHERE tour_id = ?');
   const selectDays = db.prepare(
     'SELECT * FROM itinerary_days WHERE tour_id = ? ORDER BY day_number',
