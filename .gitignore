@@ -26,3 +26,6 @@ docs/FINDINGS.md
 # Written and re-added by `next dev` for coding agents. Not part of the
 # integration this repo exists to demonstrate, so it stays out of the tree.
 AGENTS.md
+
+# Screenshots and traces from local browser checks.
+.playwright-mcp/
