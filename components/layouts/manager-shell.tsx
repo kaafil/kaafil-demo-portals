@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { signOut } from '@/app/_actions/auth';
-import { BRAND } from '@/config/brand';
 import type { CrmStaff } from '@/fixtures/types';
 import { Wordmark } from './wordmark';
 
