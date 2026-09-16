@@ -53,9 +53,24 @@
  *   base is pulled down until that chip clears AA. The tint backgrounds are
  *   Harbor's exactly.
  *
- * `--accent` IS Harbor's signature `#ea9940`, unmodified, because `--accent-ink`
- * is navy rather than white — 7.72:1, and the mark's own pairing. The text duty
- * it could not carry lives in `--accent-text`; see that token.
+ * ── THE ACCENT IS A STEP DEEPER THAN HARBOR'S, AND WHY ────────────────────
+ *
+ * Harbor's signature is `#ea9940`. It was used here unmodified at first, paired
+ * with navy ink because white on it is 2.30:1 — the portal's own `.kf-tryit-button`
+ * does exactly that and is failing. Navy on amber measures 7.12:1 and passes.
+ *
+ * It looked bad. A large flat amber fill under near-black text reads as a
+ * warning banner rather than as a primary action — dark-on-mid-tone is muddy at
+ * button size however well it measures, and a contrast ratio does not have an
+ * opinion about that.
+ *
+ * So the fill is `#a85e15`, from the same family as Harbor's own `--accent-2`,
+ * which takes WHITE at 4.91:1. Crisper, and it clears AA rather than sitting on
+ * the edge of it. The bright signature amber is not lost: it is the dot on the
+ * mark, and `--accent-soft` — the CONFIRMED chip and the active nav wash — is
+ * still Harbor's `#f8dfb8` exactly.
+ *
+ * The text duty this fill cannot carry lives in `--accent-text`; see that token.
  *
  * The composition: white masthead over a cream rail flowing into a cream
  * content area, with white cards floating on it. The only white in the body is
@@ -117,10 +132,10 @@
 
      `main`'s accent is a muted slate-blue on purpose — present enough to see
      the system working, bland enough that nobody mistakes it for a design. */
-  --accent: #ea9940;
-  --accent-hover: #d4842c;
+  --accent: #a85e15;
+  --accent-hover: #8f4e13;
   --accent-soft: #f8dfb8;
-  --accent-ink: #12212e;
+  --accent-ink: #ffffff;
 
   /* The accent AS TEXT, on `--surface` or on `--accent-soft`. Not a second
      brand colour — the same colour's legible sibling, and usually a darker
