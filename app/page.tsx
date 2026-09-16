@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Route } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Wordmark } from '@/components/layouts/wordmark';
@@ -52,6 +52,18 @@ export const metadata: Metadata = {
 export default function Root(): ReactNode {
   const { tour, tourPlural, leader, deskPlural } = BRAND.vocabulary;
 
+  /*
+   * Where the two calls to action go — see `Brand.landingEntry`.
+   *
+   * `'direct'` signs the visitor in as whoever has the most to show and skips
+   * the roster; `'roster'` takes them to it, anchored at the right column. The
+   * footnote changes with it, because "pick any name" is a lie on a button that
+   * does not ask you to.
+   */
+  const direct = BRAND.landingEntry === 'direct';
+  const deskHref = direct ? '/enter/desk' : '/login#desk';
+  const fieldHref = direct ? '/enter/field' : '/login#field';
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -93,9 +105,13 @@ export default function Root(): ReactNode {
         <Surface
           kicker="Desk · office"
           title="The back office"
-          href="/login#desk"
+          href={deskHref}
           action="Open the back office"
-          footnote="Pick any name. No password."
+          footnote={
+            direct
+              ? 'No password — you are signed in as a desk executive.'
+              : 'Pick any name. No password.'
+          }
         >
           Every {tour} on the books, traveller records, who is out on the ground right now. Kaafil
           sits inside a single {tour} as a tab — one more section of the software the {deskPlural}{' '}
@@ -105,9 +121,13 @@ export default function Root(): ReactNode {
         <Surface
           kicker="Field · phone"
           title={`The ${leader}'s app`}
-          href="/login#field"
+          href={fieldHref}
           action="Open the field app"
-          footnote="Open it once online before you go offline — it caches what it has been shown."
+          footnote={
+            direct
+              ? `Opens as the ${leader} of the ${tour} that is out right now.`
+              : 'Open it once online before you go offline — it caches what it has been shown.'
+          }
         >
           A phone-shaped, installable app for whoever is travelling with the group. One-handed, and
           it keeps working in a valley with no signal.
@@ -154,7 +174,17 @@ export default function Root(): ReactNode {
   );
 }
 
-function Surface({
+/*
+ * Generic over `href` so a DYNAMIC route can be passed in.
+ *
+ * `Route` with its default type parameter resolves dynamic segments to `never`
+ * — `RouteImpl` only admits them through `T extends \`${DynamicRoutes}\`` and
+ * `string` does not extend a template literal. So the bare type accepts
+ * `/login#desk` and rejects `/enter/desk`, even though both routes exist.
+ * Inferring `H` from the call site is what lets `typedRoutes` check the literal
+ * it was actually given, which is the whole point of having it on.
+ */
+function Surface<H extends string>({
   kicker,
   title,
   href,
@@ -165,7 +195,7 @@ function Surface({
 }: {
   kicker: string;
   title: string;
-  href?: '/login#desk' | '/login#field';
+  href?: Route<H>;
   action?: string;
   footnote?: string;
   recessed?: boolean;

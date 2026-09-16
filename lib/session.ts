@@ -87,3 +87,51 @@ export function rosterAll(): CrmStaff[] {
 export function cookieName(portal: Portal): string {
   return COOKIE[portal];
 }
+
+/**
+ * The most interesting person to be, for a visitor who has not asked to choose.
+ *
+ * ── WHY THIS EXISTS ────────────────────────────────────────────────────────
+ *
+ * The roster screen is the right front door for a partner reading this repo:
+ * picking one person and landing in a phone app, then another and landing at a
+ * desk console, makes the product's central claim before anyone explains it.
+ *
+ * It is the wrong front door for a stranger who followed a link. They do not
+ * know any of these names, none of the twenty means anything to them, and the
+ * screen asks a question they have no basis to answer. `config/brand.ts`'s
+ * `landingEntry` lets a deployment aimed at strangers skip it, and this decides
+ * who they become.
+ *
+ * ── "MOST INTERESTING" IS NOT ARBITRARY ────────────────────────────────────
+ *
+ * For the field app it is the lead leader of a departure that is ON THE GROUND
+ * RIGHT NOW — the one person in the roster with live work, a manifest to check
+ * and money to account for. Anyone else lands in a correct but empty app, which
+ * is the worst possible first impression of an offline-first field tool.
+ * Departures are already ordered ON_TOUR-first, so the first hit is the live
+ * one.
+ *
+ * For the desk it is simply the senior desk executive by staff code, because
+ * every desk executive sees the same agency-wide screens — there is no
+ * equivalent of "the one with live work", so the only honest tiebreak is a
+ * stable one.
+ *
+ * Returns `null` rather than throwing when the roster cannot supply anybody, so
+ * the caller can fall back to the picker instead of failing.
+ */
+export function suggestedStaff(portal: Portal): CrmStaff | null {
+  const roster = rosterAll().filter((staff) => staff.role === PORTAL_ROLE[portal]);
+  if (roster.length === 0) return null;
+
+  if (portal === 'desk') {
+    return [...roster].sort((a, b) => a.staffCode.localeCompare(b.staffCode))[0] ?? null;
+  }
+
+  const live = getStore()
+    .listTours()
+    .find((row) => row.tour.status === 'ON_TOUR' && row.leadLeader !== null);
+
+  const leading = roster.find((staff) => staff.staffId === live?.leadLeader?.staffId);
+  return leading ?? roster[0] ?? null;
+}

@@ -76,6 +76,26 @@ export interface Brand {
    * `'dark'`; one that implements both says `'system'` and means it.
    */
   colorScheme: 'light' | 'dark' | 'system';
+  /**
+   * What the landing page's two calls to action do.
+   *
+   * `'roster'` — take the visitor to `/login` to pick a person. Right for a
+   * partner reading this repo: choosing one name and landing in a phone app,
+   * then another and landing at a desk console, makes the product's central
+   * claim before anybody explains it. That screen IS the demonstration.
+   *
+   * `'direct'` — sign them straight in as whoever has the most to show
+   * (`lib/session.ts#suggestedStaff`), skipping the roster entirely. Right for
+   * a deployment aimed at people who followed a link: twenty Indian names mean
+   * nothing to them, so the picker is asking a question they have no basis to
+   * answer, and every extra screen between a stranger and the product costs
+   * some of them.
+   *
+   * `/login` still exists and still works either way — this only decides where
+   * the landing page points. A visitor who wants to be somebody else can
+   * always sign out and choose.
+   */
+  landingEntry: 'roster' | 'direct';
   vocabulary: BrandVocabulary;
 }
 
@@ -93,6 +113,9 @@ export const BRAND: Brand = {
   logoPath: '/brand/logo.png',
   tagline: 'Travel CRM — queries, bookings and trips in one place.',
   colorScheme: 'light',
+  // `main` is the reference a partner reads, so it keeps the roster: that
+  // screen is where the persona model is easiest to see.
+  landingEntry: 'roster',
 
   /**
    * Travyan's own words, taken from their console's nav and screens.
