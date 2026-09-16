@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Wordmark } from '@/components/layouts/wordmark';
-import { BRAND, titleCase } from '@/config/brand';
+import { BRAND } from '@/config/brand';
 
 /**
  * The first screen a stranger sees.
@@ -53,7 +53,7 @@ export default function Root(): ReactNode {
   const { tour, tourPlural, leader, deskPlural } = BRAND.vocabulary;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-7 md:py-8">
+    <main className="mx-auto max-w-5xl px-4 py-6 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <Wordmark />
         <a
@@ -66,37 +66,34 @@ export default function Root(): ReactNode {
         </a>
       </header>
 
-      <section className="mt-7 md:mt-8">
-        <p className="text-sm tracking-wide text-ink-faint uppercase">
+      <section className="mt-6 md:mt-8">
+        <p className="text-xs tracking-wide text-ink-faint uppercase md:text-sm">
           A working integration, not a slide deck
         </p>
-        <h1 className="mt-2 max-w-3xl text-2xl leading-tight font-semibold text-ink md:text-3xl">
+        <h1 className="mt-2 text-xl leading-tight font-semibold text-ink md:text-3xl">
           Kaafil, inside a travel CRM.
         </h1>
-        <p className="mt-4 max-w-2xl text-md text-ink-soft md:text-lg">
-          {BRAND.companyName} runs {tourPlural} — selling them, filling them, collecting for them.
-          Kaafil is the part that runs a {tour} once people are actually on it. This site is both:
-          the operator&rsquo;s own back office, with Kaafil built into it in three places.
+        <p className="mt-3 max-w-2xl text-base text-ink-soft md:text-lg">
+          {BRAND.companyName} runs {tourPlural}. Kaafil runs a {tour} once people are actually on
+          it. This site is both.
         </p>
-        <p className="mt-3 max-w-2xl text-base text-ink-faint">
-          You are welcome to click on everything. There is no password — sign in as anyone on the
-          roster and look wherever you like. The office records are read-only; anything you change
-          on the Kaafil side lands in a demonstration tenant that holds nothing real.
+        <p className="mt-2 max-w-2xl text-base text-ink-faint">
+          Click on anything. There is no password — sign in as whoever you like. The office records
+          are read-only; changes on the Kaafil side land in a demonstration tenant.
         </p>
       </section>
 
-      <section className="mt-7 grid gap-4 md:grid-cols-3 md:gap-5">
+      <section className="mt-6 grid gap-3 md:mt-8 md:grid-cols-3 md:gap-5">
         <Surface
           kicker="Desk · office"
           title="The back office"
           href="/login#desk"
           action="Open the back office"
-          footnote="Pick any name from the list. There is no password."
+          footnote="Pick any name. No password."
         >
-          Where the {deskPlural} work: every {tour} on the books, traveller records, who is out on
-          the ground right now. Kaafil lives inside a single {tour}, as a tab called &ldquo;On the
-          ground&rdquo; — one more section of the software they already had, not a link to somewhere
-          else.
+          Every {tour} on the books, traveller records, who is out on the ground right now. Kaafil
+          sits inside a single {tour} as a tab — one more section of the software the {deskPlural}{' '}
+          already had.
         </Surface>
 
         <Surface
@@ -104,63 +101,48 @@ export default function Root(): ReactNode {
           title={`The ${leader}'s app`}
           href="/login#field"
           action="Open the field app"
-          footnote="Best seen on a phone. Open it once online before you turn the signal off — the app caches what it has been shown, not what it has not."
+          footnote="Open it once online before you go offline — it caches what it has been shown."
         >
-          A phone-shaped, installable app for the person travelling with the group — one-handed,
-          every control inside thumb reach. It is offline-first: open it once with signal and it
-          keeps working in a valley without any.
+          A phone-shaped, installable app for whoever is travelling with the group. One-handed, and
+          it keeps working in a valley with no signal.
         </Surface>
 
-        {/* No button, and the copy says why. A share link is a private document,
-            so there is nothing honest to put here — and a dead-looking card with
-            no explanation would read as a broken feature rather than as the
-            access control it actually is. */}
+        {/* No button, and the copy says why. A dead-looking card with no
+            explanation reads as a broken feature rather than as the access
+            control it actually is. */}
         <Surface kicker="Traveller · a link you send" title="The page a family opens" recessed>
-          No account and no app. A traveller — or their mother — opens one URL from WhatsApp and
-          sees their own itinerary, their rooming and their balance, and nothing else on the tenant.
+          One URL from WhatsApp — their itinerary, their rooming, their balance, and nothing else.
           <br />
           <br />
-          <strong className="font-semibold text-ink">
-            There is no button here, and that is the point.
-          </strong>{' '}
-          A traveller link is minted for one {tour} and one household, and only the office can mint
-          one, because handing out a link discloses a manifest — names, phone numbers, who is
-          rooming with whom. To see the page: open the back office, go into any {tour}, choose{' '}
-          <strong className="font-semibold text-ink">On the ground</strong>, and use the share
-          action there.
+          <strong className="font-semibold text-ink">No button here, on purpose.</strong> A link is
+          minted for one household and only the office can mint one, because it discloses a
+          manifest. Open any {tour} →{' '}
+          <strong className="font-semibold text-ink">On the ground</strong> → share.
         </Surface>
       </section>
 
-      <section className="mt-7 md:mt-8">
-        <h2 className="text-sm tracking-wide text-ink-faint uppercase">What you are looking at</h2>
-        <dl className="mt-3">
+      <section className="mt-6 md:mt-8">
+        <h2 className="text-xs tracking-wide text-ink-faint uppercase md:text-sm">
+          What you are looking at
+        </h2>
+        <dl className="mt-2">
           <Point title="One product, one brand">
-            The embedded Kaafil screens read the same colours, radii, spacing and typeface as the
-            pages around them — as references, not as copies. Change the operator&rsquo;s accent
-            colour and the embedded surfaces change in the same commit. Put the two side by side and
-            there is no seam to find.
+            The embedded Kaafil screens read the host's own colours, radii and typeface — as
+            references, not copies. Change the accent and they change in the same commit.
           </Point>
           <Point title="The key never reaches your browser">
-            The partner API key is held on the server and nowhere else. What the browser gets is a
-            short-lived session minted for one person, by one endpoint, for one job — which is also
-            what decides whether you are looking at the office, the field, or a traveller&rsquo;s
-            page.
+            The partner API key stays on the server. The browser gets a short-lived session minted
+            for one person — which is also what decides which of the three surfaces you see.
           </Point>
           <Point title="Seeded, not staged">
-            The book of business is generated from fixtures: real-shaped Indian names, GSTINs, E.164
-            numbers and long place names, across enough {tourPlural} that a list, a filter and a
-            paginator have to actually hold up. Six rows is a fixture. This is meant to look like a
-            Tuesday.
+            Real-shaped Indian names, GSTINs and place names, across enough {tourPlural} that a
+            list, a filter and a paginator have to actually hold up.
           </Point>
         </dl>
       </section>
 
-      <footer className="mt-7 border-t border-border-faint pt-4 text-sm text-ink-faint md:mt-8">
-        <p>
-          A demonstration build. Every traveller, {titleCase(tour).toLowerCase()}, booking and
-          payment in it is fabricated — any resemblance to a real person is an accident of the
-          generator.
-        </p>
+      <footer className="mt-6 border-t border-border-faint pt-4 text-xs text-ink-faint md:mt-8">
+        <p>A demonstration build. Every traveller, booking and payment in it is fabricated.</p>
       </footer>
     </main>
   );
@@ -185,7 +167,7 @@ function Surface({
 }): ReactNode {
   return (
     <section
-      className={`flex flex-col rounded-card border border-border p-4 shadow-card ${
+      className={`flex flex-col rounded-card border border-border p-3 shadow-card md:p-4 ${
         recessed ? 'bg-surface-alt' : 'bg-surface'
       }`}
     >
@@ -215,7 +197,7 @@ function Surface({
 
 function Point({ title, children }: { title: string; children: ReactNode }): ReactNode {
   return (
-    <div className="border-t border-border-faint py-4">
+    <div className="border-t border-border-faint py-3">
       <dt className="text-md font-semibold text-ink">{title}</dt>
       <dd className="mt-1 max-w-3xl text-base text-ink-soft">{children}</dd>
     </div>
