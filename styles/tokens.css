@@ -53,33 +53,32 @@
  *   base is pulled down until that chip clears AA. The tint backgrounds are
  *   Harbor's exactly.
  *
- * ── THE PRIMARY FILL IS THE NAVY, NOT THE AMBER ───────────────────────────
+ * ── THE ACCENT IS HARBOR'S SIGNATURE AMBER, WITH WHITE ON IT ──────────────
  *
- * Harbor's signature is `#ea9940`, and the obvious move is to fill the primary
- * button with it. Two attempts at that, both wrong, recorded because the next
- * person will try them in the same order:
+ * `#ea9940` with `--accent-ink: #ffffff`, which is exactly what the developer
+ * portal's own `.kf-tryit-button` does. This is a deliberate brand decision and
+ * it has a known cost, stated here rather than left for somebody to rediscover
+ * with a contrast checker:
  *
- *   Amber with WHITE is 2.30:1. The portal's own `.kf-tryit-button` does
- *   exactly this and is failing; it is not a model to copy.
+ *   **White on this amber is 2.30:1.** That is below WCAG AA for text at any
+ *   size. It affects the LABEL on a primary button and nothing else.
  *
- *   Amber with NAVY measures 7.12:1 and passes — and reads as a warning
- *   banner. Dark text on a mid-tone fill is muddy at button size however well
- *   it measures. Darkening the amber until white works takes it to `#a85e15`,
- *   which is no longer amber; it is brown, and it looks like it.
+ * The alternatives were tried and are worse on their own terms. Navy ink on the
+ * amber measures 7.12:1 and reads as a warning banner — dark text on a mid-tone
+ * fill is muddy at button size however well it measures. Darkening the amber
+ * until white clears AA lands around `#a85e15`, which is no longer amber; it is
+ * brown. There is no orange that is both recognisably this brand's and legible
+ * under white, so the choice is between the brand colour and the ratio, and the
+ * brand colour was chosen.
  *
- * That is not a tuning problem, it is the hue. There is no orange that is both
- * recognisably Harbor's and legible under white.
- *
- * So the primary fill is the NAVY — which is not a retreat from the palette,
- * because Harbor is navy AND amber and the mark itself is a navy tile. White on
- * it is 16.37:1, almost exactly the cream-on-navy the mark already uses.
- *
- * The amber is not demoted, it is placed: it is `--accent-soft` behind every
- * CONFIRMED chip and the active nav row, it is `--accent-text` on every
- * departure link, it is `--ring` on every focused control, and it is the dot on
- * the mark. Used as a wash, an outline and a signal rather than as a large flat
- * fill, which is the difference between a palette reading as expensive and
- * reading as loud.
+ * WHAT MAKES THAT SURVIVABLE: this token is the FILL only. Everywhere the
+ * accent has to be read as text it goes through `--accent-text`, which is a
+ * darker sibling and does clear AA — the departure links, the CONFIRMED chip.
+ * And a button is the one control whose meaning does not rest on its label
+ * alone: it is a large, solid, uniquely-coloured target in a known position,
+ * and the copy on it is repeated in the card above. A body paragraph at 2.30:1
+ * would be indefensible; this is not that, and it is still the weakest point in
+ * this skin.
  *
  * The text duty this fill cannot carry lives in `--accent-text`; see that token.
  *
@@ -143,42 +142,26 @@
 
      `main`'s accent is a muted slate-blue on purpose — present enough to see
      the system working, bland enough that nobody mistakes it for a design. */
-  --accent: #12212e;
-  --accent-hover: #1d3345;
+  --accent: #ea9940;
+  --accent-hover: #d4842c;
   --accent-soft: #f8dfb8;
   --accent-ink: #ffffff;
 
   /* The accent AS TEXT, on `--surface` or on `--accent-soft`. Not a second
-     brand colour — the same colour's legible sibling, and usually a darker
-     step of the same hue.
+     brand colour — the same colour's legible sibling.
 
-     ── WHY THIS IS NOT JUST `--accent` ───────────────────────────────────────
+     SATURATION, NOT JUST DARKNESS. The first value here was `#8f4e13`, picked
+     only for its ratio, and it read as mud: dropping an amber's lightness
+     without holding its chroma gives you brown, and a table of brown links
+     looks tired next to `client/travyan`'s vivid `#fe8652`. That branch is
+     more alive here and it is worth saying why — it is also 2.40:1 and
+     failing, so the goal is its liveliness at a ratio it does not have.
 
-     `--accent` does two jobs that pull in opposite directions. As a FILL it
-     wants to be the brand: saturated, warm, visible across a room. As TEXT it
-     has to clear 4.5:1 against white at 13px, and again against `--accent-soft`
-     in a status chip. Brand colours rarely do both, and warm ones essentially
-     never do:
-
-       Kaafil's own amber  #ea9940   2.30:1 on white,  1.60:1 on its tint
-       Travyan's orange    #fe8652   2.86:1 on white
-       `main`'s slate      #40566e   7.31:1 on white
-
-     `main` passes by accident — a muted slate is dark enough to read. Every
-     branch with an actual brand colour failed, silently, in the places it is
-     least excusable: the departure title link on the busiest table, and the
-     CONFIRMED chip that sits on most of its rows. The seam as originally built
-     therefore quietly forbade warm accents, which is not a constraint anybody
-     chose and not one a branch author could have discovered without a contrast
-     checker.
-
-     So the fill keeps `--accent` and the text gets this. A branch sets the two
-     independently and can carry its real brand colour on every button while
-     still being readable in a table cell.
-
-     `main` points it at `--accent` so nothing about `main` renders differently
-     than it did before. */
-  --accent-text: #8f4e13;
+     `#a84300` is fully saturated and still clears AA everywhere it lands:
+     6.06:1 on `--surface`, 5.41:1 on `--canvas`, 4.68:1 on `--accent-soft`
+     where the CONFIRMED chip sits. A burnt orange rather than a brown, which
+     is the difference the eye actually registers. */
+  --accent-text: #a84300;
 
   /* ── Status ─────────────────────────────────────────────────────────────
      Three parts each — base, soft tint, border — not one colour per status.
