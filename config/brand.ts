@@ -131,9 +131,22 @@ export const BRAND: Brand = {
   logoPath: '/brand/logo.svg',
   tagline: 'Every departure, manifest and collection — on one desk.',
   colorScheme: 'light',
-  // `main` is the reference a partner reads, so it keeps the roster: that
-  // screen is where the persona model is easiest to see.
-  landingEntry: 'roster',
+
+  /*
+   * THE ONE BEHAVIOURAL DIFFERENCE ON THIS BRANCH, and the reason it is a
+   * brand field rather than an edit to the landing page.
+   *
+   * `main` and `client/travyan` are read by partners, who benefit from the
+   * roster: it is where the persona model is easiest to see. This branch is the
+   * public link. Somebody arriving from it has never heard of Anjali Menon or
+   * Meera Sharma, so a screen asking which of twenty strangers they would like
+   * to be is pure friction — they came to see the product.
+   *
+   * So the two calls to action sign them in on the way through, as whoever has
+   * live work to show. `/login` still exists for anyone who wants to be
+   * somebody else.
+   */
+  landingEntry: 'direct',
 
   // Unchanged from `main`, on purpose. See the block above.
   vocabulary: {
