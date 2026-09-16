@@ -73,9 +73,15 @@ export default function Root(): ReactNode {
         <h1 className="mt-2 text-xl leading-tight font-semibold text-ink md:text-3xl">
           Kaafil, inside a travel CRM.
         </h1>
+        {/* The operator's name is NOT in this sentence, and that is deliberate.
+            The masthead wordmark has already said it, and on a branch whose
+            company happens to be Kaafil — there is one — naming it here gives
+            you "Kaafil runs departures. Kaafil runs a departure once people are
+            on it", which reads like a stutter. Letting the mark carry the name
+            works on every skin. */}
         <p className="mt-3 max-w-2xl text-base text-ink-soft md:text-lg">
-          {BRAND.companyName} runs {tourPlural}. Kaafil runs a {tour} once people are actually on
-          it. This site is both.
+          A back office that sells {tourPlural}, fills them and collects for them — with Kaafil
+          running each one once people are actually on it.
         </p>
         <p className="mt-2 max-w-2xl text-base text-ink-faint">
           Click on anything. There is no password — sign in as whoever you like. The office records
