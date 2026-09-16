@@ -309,7 +309,13 @@
      branch that wants no marker sets it to `transparent` rather than deleting
      an element. */
   --nav-active-bg: var(--accent-soft);
-  --nav-active-ink: var(--ink);
+  /* The burnt orange, not the ink. Near-black on the amber wash measures
+     12.66:1 and still reads heavy — the same dark-on-warm muddiness that was
+     wrong on the button, at smaller size. This is also exactly what the
+     CONFIRMED chip does with the same two tokens, so the active row and the
+     chip now agree rather than each having their own idea of "amber with text
+     on it". 4.68:1, which clears AA. */
+  --nav-active-ink: var(--accent-text);
   --nav-active-marker: var(--accent);
   --nav-hover-bg: #ebe8e1;
 
