@@ -53,22 +53,33 @@
  *   base is pulled down until that chip clears AA. The tint backgrounds are
  *   Harbor's exactly.
  *
- * ── THE ACCENT IS A STEP DEEPER THAN HARBOR'S, AND WHY ────────────────────
+ * ── THE PRIMARY FILL IS THE NAVY, NOT THE AMBER ───────────────────────────
  *
- * Harbor's signature is `#ea9940`. It was used here unmodified at first, paired
- * with navy ink because white on it is 2.30:1 — the portal's own `.kf-tryit-button`
- * does exactly that and is failing. Navy on amber measures 7.12:1 and passes.
+ * Harbor's signature is `#ea9940`, and the obvious move is to fill the primary
+ * button with it. Two attempts at that, both wrong, recorded because the next
+ * person will try them in the same order:
  *
- * It looked bad. A large flat amber fill under near-black text reads as a
- * warning banner rather than as a primary action — dark-on-mid-tone is muddy at
- * button size however well it measures, and a contrast ratio does not have an
- * opinion about that.
+ *   Amber with WHITE is 2.30:1. The portal's own `.kf-tryit-button` does
+ *   exactly this and is failing; it is not a model to copy.
  *
- * So the fill is `#a85e15`, from the same family as Harbor's own `--accent-2`,
- * which takes WHITE at 4.91:1. Crisper, and it clears AA rather than sitting on
- * the edge of it. The bright signature amber is not lost: it is the dot on the
- * mark, and `--accent-soft` — the CONFIRMED chip and the active nav wash — is
- * still Harbor's `#f8dfb8` exactly.
+ *   Amber with NAVY measures 7.12:1 and passes — and reads as a warning
+ *   banner. Dark text on a mid-tone fill is muddy at button size however well
+ *   it measures. Darkening the amber until white works takes it to `#a85e15`,
+ *   which is no longer amber; it is brown, and it looks like it.
+ *
+ * That is not a tuning problem, it is the hue. There is no orange that is both
+ * recognisably Harbor's and legible under white.
+ *
+ * So the primary fill is the NAVY — which is not a retreat from the palette,
+ * because Harbor is navy AND amber and the mark itself is a navy tile. White on
+ * it is 16.37:1, almost exactly the cream-on-navy the mark already uses.
+ *
+ * The amber is not demoted, it is placed: it is `--accent-soft` behind every
+ * CONFIRMED chip and the active nav row, it is `--accent-text` on every
+ * departure link, it is `--ring` on every focused control, and it is the dot on
+ * the mark. Used as a wash, an outline and a signal rather than as a large flat
+ * fill, which is the difference between a palette reading as expensive and
+ * reading as loud.
  *
  * The text duty this fill cannot carry lives in `--accent-text`; see that token.
  *
@@ -132,8 +143,8 @@
 
      `main`'s accent is a muted slate-blue on purpose — present enough to see
      the system working, bland enough that nobody mistakes it for a design. */
-  --accent: #a85e15;
-  --accent-hover: #8f4e13;
+  --accent: #12212e;
+  --accent-hover: #1d3345;
   --accent-soft: #f8dfb8;
   --accent-ink: #ffffff;
 
