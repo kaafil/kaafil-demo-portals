@@ -148,7 +148,10 @@ export interface IngestResult {
  * of "home but the accounts are still open", because settlement is the CRM's
  * job and stays there. The distinction survives in the CRM's own screens.
  */
-const TRIP_STATUS: Record<TourStatus, 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'> = {
+export const TRIP_STATUS: Record<
+  TourStatus,
+  'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+> = {
   CONFIRMED: 'CONFIRMED',
   ON_TOUR: 'IN_PROGRESS',
   RETURNED: 'COMPLETED',

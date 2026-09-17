@@ -11,6 +11,7 @@ import type { CrmFixture } from '@/fixtures/types';
 import { enrichTrips } from '@/lib/enrich';
 import { runIngest } from '@/lib/ingest';
 import { createKaafilClient, type KaafilClient } from '@/lib/kaafil-client';
+import { retireFinishedTrips } from './retire';
 import { type LiveState, readLiveState, writeLiveState } from './state';
 import { frozenFixture, swapStoreForToday } from './swap';
 
@@ -180,7 +181,8 @@ export async function refreshLiveDeparture(options: RefreshOptions = {}): Promis
   // The wrapper carries the SDK instance AND the resolved environment, so the
   // agency ref comes from the same place the client did and the two cannot
   // disagree about which tenant this is.
-  const { kaafil, env } = options.client ?? createKaafilClient();
+  const client = options.client ?? createKaafilClient();
+  const { kaafil, env } = client;
   const agencyRef = env.agencyRef;
   const slice = liveOnlyFixture(base, today);
 
@@ -209,7 +211,16 @@ export async function refreshLiveDeparture(options: RefreshOptions = {}): Promis
     );
   }
 
-  const failuresByCode = tally([...ingest.failures, ...enrichFailures]);
+  /*
+   * Retire what the calendar has moved on, in the same run.
+   *
+   * Adding a live departure without this leaves every previous one permanently
+   * IN_PROGRESS in the tenant — several trips claiming to be under way at once,
+   * and a field app that opens on whichever it picks. See `./retire.ts`.
+   */
+  const retired = await retireFinishedTrips(client, base, today, log);
+
+  const failuresByCode = tally([...ingest.failures, ...enrichFailures, ...retired.failures]);
   const clean = Object.keys(failuresByCode).length === 0 && ingest.readyTripRefs.includes(tourId);
   const outcome: RefreshOutcome = clean ? 'ok' : 'partial';
 
