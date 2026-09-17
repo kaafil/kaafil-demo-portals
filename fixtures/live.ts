@@ -55,6 +55,7 @@
  */
 
 import { addDays, daysBetween, pad2 } from './calendar';
+import { withCurrentStatuses } from './status';
 import type {
   CrmBooking,
   CrmFixture,
@@ -342,7 +343,19 @@ export function buildLiveDeparture(base: CrmFixture, today: IsoDate): LiveDepart
 export function withLiveDeparture(base: CrmFixture, today: IsoDate): CrmFixture {
   const live = buildLiveDeparture(base, today);
 
-  if (base.tours.some((row) => row.tourId === live.tour.tourId)) {
+  /*
+   * The frozen half gets its statuses brought up to date at the same time, and
+   * the two halves of that are not separable.
+   *
+   * Adding a live departure without retiring the ones it replaces leaves every
+   * September departure permanently `ON_TOUR` — so a manager sees several trips
+   * claiming to be under way and the field app opens on whichever it picks,
+   * which was a finished one. Adding and retiring is what "there is always ONE
+   * departure out on the ground" actually requires. See `./status.ts`.
+   */
+  const current = withCurrentStatuses(base, today);
+
+  if (current.tours.some((row) => row.tourId === live.tour.tourId)) {
     throw new Error(
       `Live departure ${live.tour.tourId} collides with a tour already in the fixture. ` +
         'That should be impossible — live ids carry a day segment and frozen ones do not.',
@@ -350,12 +363,12 @@ export function withLiveDeparture(base: CrmFixture, today: IsoDate): CrmFixture 
   }
 
   return {
-    agency: base.agency,
-    staff: base.staff,
-    tours: [live.tour, ...base.tours],
-    tourStaff: [...base.tourStaff, ...live.tourStaff],
-    bookings: [...base.bookings, ...live.bookings],
-    payments: [...base.payments, ...live.payments],
-    travellers: [...base.travellers, ...live.travellers],
+    agency: current.agency,
+    staff: current.staff,
+    tours: [live.tour, ...current.tours],
+    tourStaff: [...current.tourStaff, ...live.tourStaff],
+    bookings: [...current.bookings, ...live.bookings],
+    payments: [...current.payments, ...live.payments],
+    travellers: [...current.travellers, ...live.travellers],
   };
 }
