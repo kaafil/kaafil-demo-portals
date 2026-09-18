@@ -30,7 +30,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { build } from 'esbuild';
 import { BRAND } from '@/config/brand';
@@ -88,12 +88,45 @@ const precache = [
  * The prefix follows the brand for the same reason. Every branch used to ship a
  * bucket called `sharma-field-…`, visible in the Application tab of DevTools,
  * on a demo being shown to the prospect whose name is not Sharma.
+ *
+ * ── AND THE BUILD ID, WHICH IS THE ONE THAT BROKE PRODUCTION ───────────────
+ *
+ * Neither of the two above changes when the APP changes. The precache list is
+ * the same handful of URLs every build, and the manifest body only moves when
+ * the brand does. So an ordinary code deploy produced an identical cache name,
+ * `activate` deleted nothing, and the worker went on serving the PREVIOUS
+ * build's `/m` shell out of Cache Storage — an HTML document referencing
+ * `/_next/static/chunks/*.js` filenames that no longer exist on the server.
+ *
+ * The result was a white "This page couldn't load" with a ChunkLoadError in the
+ * console, for every visitor who had opened the app before, on every deploy.
+ * The one population it could not affect was first-time visitors, which is
+ * exactly why it survived testing.
+ *
+ * `.next/BUILD_ID` changes on every build by construction, which is precisely
+ * the property needed. It is read rather than imported because this script runs
+ * under `tsx` after `next build`, and it falls back to a timestamp when absent
+ * so a bare `pnpm build:sw` still produces a unique name rather than silently
+ * reusing the last one.
  */
+
+function buildFingerprint(): string {
+  try {
+    return readFileSync('.next/BUILD_ID', 'utf8').trim();
+  } catch {
+    // No `next build` in front of this run. A timestamp is the honest answer:
+    // it cannot collide, and a standalone `build:sw` is a developer action
+    // rather than something a deploy depends on.
+    return `no-build-${Date.now()}`;
+  }
+}
 const cacheSlug = BRAND.shortName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const cacheName = `${cacheSlug}-field-${createHash('sha256')
   .update(precache.join('\n'))
   .update('\u0000')
   .update(JSON.stringify(buildManifest()))
+  .update('\u0000')
+  .update(buildFingerprint())
   .digest('hex')
   .slice(0, 8)}`;
 
