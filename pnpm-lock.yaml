@@ -15,11 +15,11 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
       kaafil-js:
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       kaafil-react-uikit:
-        specifier: 0.11.8
-        version: 0.11.8(kaafil-js@0.7.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 0.12.0
+        version: 0.12.0(kaafil-js@0.8.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       lucide-react:
         specifier: ^1.46.0
         version: 1.46.0(react@19.3.0)
@@ -697,15 +697,15 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  kaafil-js@0.7.0:
-    resolution: {integrity: sha512-MBDLztLLxTAxcw7iLJsXDE4Cx12q48ZP81BvfG6VEXwHeuAk6zFAcdKyNc7F83XAJkMn+HvpkbQpnCUSqAKh6A==}
+  kaafil-js@0.8.0:
+    resolution: {integrity: sha512-q2jb2HigbX8sisqiRSPTlmR3PlC1avAg4q390sj1NxJrfh+CllNGH4WBFzQTea4M8baQI2BQ+Tjcr1VC86eeuQ==}
     engines: {node: '>=20.11'}
 
-  kaafil-react-uikit@0.11.8:
-    resolution: {integrity: sha512-68gbgOp+98Tp6+74gkVLyjoRPzCIxysHfmPdVNrquUku6saNS+8UxKTQovpbruvI/pE1P7xqSHxM3EnIzVlQUw==}
+  kaafil-react-uikit@0.12.0:
+    resolution: {integrity: sha512-WT3QVSLYCB8h4a4+1kO7QeCvbtrAdIxxc6WslzMLBIQB6b+YSa9gVlWNbwUlWWgh2PsMl32OW/ixYvhMOTJ5Ig==}
     engines: {node: '>=20.11'}
     peerDependencies:
-      kaafil-js: ^0.7.0
+      kaafil-js: ^0.8.0
       react: '>=18.2.0 <20.0.0'
       react-dom: '>=18.2.0 <20.0.0'
 
@@ -1426,11 +1426,11 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  kaafil-js@0.7.0: {}
+  kaafil-js@0.8.0: {}
 
-  kaafil-react-uikit@0.11.8(kaafil-js@0.7.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  kaafil-react-uikit@0.12.0(kaafil-js@0.8.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      kaafil-js: 0.7.0
+      kaafil-js: 0.8.0
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
