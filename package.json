@@ -30,7 +30,7 @@
     "better-sqlite3": "^11.8.1",
     "croner": "^10.0.1",
     "kaafil-js": "0.7.0",
-    "kaafil-react-uikit": "0.11.5",
+    "kaafil-react-uikit": "0.11.6",
     "lucide-react": "^1.46.0",
     "next": "^16.2.1",
     "react": "^19.2.0",
