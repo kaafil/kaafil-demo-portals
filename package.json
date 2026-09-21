@@ -29,8 +29,8 @@
   "dependencies": {
     "better-sqlite3": "^11.8.1",
     "croner": "^10.0.1",
-    "kaafil-js": "0.8.0",
-    "kaafil-react-uikit": "0.12.0",
+    "kaafil-js": "0.9.0",
+    "kaafil-react-uikit": "0.13.0",
     "lucide-react": "^1.46.0",
     "next": "^16.2.1",
     "react": "^19.2.0",
